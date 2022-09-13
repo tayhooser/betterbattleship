@@ -30,7 +30,6 @@ void init();
 void init_opengl();
 void render();
 void get_grid_center(const int g, const int i, const int j, int cent[2]);
-extern void show_cecilio();
 int xres=1200;
 int yres=800;
 //
@@ -498,6 +497,12 @@ void init(void)
 	nbuttons++;
 }
 
+extern int show_dwelch();
+extern int show_jason();
+extern int show_danny();
+extern void show_taylor();
+extern void show_cecilio();
+
 void check_keys(XEvent *e)
 {
 	static int shift=0;
@@ -517,9 +522,6 @@ void check_keys(XEvent *e)
 	}
 	switch(key) {
 		//if (k1 == GLFW_KEY_F2) {
-		case XK_g:
-	    		show_cecilio();
-		    	break;
 		case XK_Escape:
 			done=1;
 			break;
@@ -533,6 +535,22 @@ void check_keys(XEvent *e)
 				gamemode = MODE_READY;
 			}
 			break;
+    case XK_s:
+			show_danny();
+			break;
+    case XK_g:
+	    show_cecilio();
+		   break;
+		case XK_d:
+			show_dwelch();
+      break;
+		case XK_t:
+			show_taylor();
+			break;
+    case XK_a:
+		  show_jason();
+			break;
+
 	}
 }
 

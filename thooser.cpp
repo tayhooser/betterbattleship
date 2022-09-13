@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 
-void show_my_name()
+void show_taylor()
 {
 	printf("Taylor Hooser\n");
 }
