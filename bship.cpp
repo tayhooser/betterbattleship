@@ -531,8 +531,8 @@ void check_keys(XEvent *e)
 				gamemode = MODE_READY;
 			}
 			break;
-		case XK_g:
-			show_my_name();
+		case XK_t:
+			show_taylor();
 			break;
 	}
 }
