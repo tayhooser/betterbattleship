@@ -51,6 +51,7 @@ int qsize;
 int done=0;
 int lbutton=0;
 int rbutton=0;
+extern int show_danny();
 #define MAXBUTTONS 8
 typedef struct t_button {
 	Rect r;
@@ -518,6 +519,9 @@ void check_keys(XEvent *e)
 		//if (k1 == GLFW_KEY_F2) {
 		case XK_Escape:
 			done=1;
+			break;
+		case XK_s:
+			show_danny();
 			break;
 		case XK_F2:
 			gamemode++;
