@@ -51,7 +51,6 @@ int qsize;
 int done=0;
 int lbutton=0;
 int rbutton=0;
-extern int show_danny();
 #define MAXBUTTONS 8
 typedef struct t_button {
 	Rect r;
@@ -497,9 +496,12 @@ void init(void)
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
 }
+
 extern int show_dwelch();
 extern int show_jason();
+extern int show_danny();
 extern void show_taylor();
+extern void show_cecilio();
 
 void check_keys(XEvent *e)
 {
@@ -523,9 +525,6 @@ void check_keys(XEvent *e)
 		case XK_Escape:
 			done=1;
 			break;
-		case XK_s:
-			show_danny();
-			break;
 		case XK_F2:
 			gamemode++;
 			if (gamemode == MODE_FIND_SHIPS) {
@@ -536,6 +535,12 @@ void check_keys(XEvent *e)
 				gamemode = MODE_READY;
 			}
 			break;
+    case XK_s:
+			show_danny();
+			break;
+    case XK_g:
+	    show_cecilio();
+		   break;
 		case XK_d:
 			show_dwelch();
       break;
@@ -545,6 +550,7 @@ void check_keys(XEvent *e)
     case XK_a:
 		  show_jason();
 			break;
+
 	}
 }
 
