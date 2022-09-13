@@ -535,22 +535,21 @@ void check_keys(XEvent *e)
 				gamemode = MODE_READY;
 			}
 			break;
-    case XK_s:
+		case XK_s:
 			show_danny();
 			break;
-    case XK_g:
-	    show_cecilio();
-		   break;
+		case XK_g:
+			show_cecilio();
+			break;
 		case XK_d:
 			show_dwelch();
-      break;
+			break;
 		case XK_t:
 			show_taylor();
 			break;
-    case XK_a:
-		  show_jason();
+		case XK_a:
+			show_jason();
 			break;
-
 	}
 }
 
