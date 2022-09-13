@@ -498,6 +498,8 @@ void init(void)
 	nbuttons++;
 }
 
+extern void show_my_name();
+
 void check_keys(XEvent *e)
 {
 	static int shift=0;
@@ -532,6 +534,9 @@ void check_keys(XEvent *e)
 			if (gamemode > MODE_GAMEOVER) {
 				gamemode = MODE_READY;
 			}
+			break;
+		case XK_t:
+			show_taylor();
 			break;
 	}
 }
