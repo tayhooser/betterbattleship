@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-int show_my_name()
+int show_dwelch()
 {
     printf("delaney\n");
     

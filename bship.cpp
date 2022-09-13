@@ -496,7 +496,7 @@ void init(void)
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
 }
-extern int show_my_name();
+extern int show_dwelch();
 
 void check_keys(XEvent *e)
 {
@@ -531,7 +531,7 @@ void check_keys(XEvent *e)
 			}
 			break;
 		case XK_d:
-			show_my_name();
+			show_dwelch();
 			break;
 	}
 }
