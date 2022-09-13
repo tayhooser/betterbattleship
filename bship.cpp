@@ -30,6 +30,7 @@ void init();
 void init_opengl();
 void render();
 void get_grid_center(const int g, const int i, const int j, int cent[2]);
+extern int show_jason();
 int xres=1200;
 int yres=800;
 //
@@ -516,6 +517,9 @@ void check_keys(XEvent *e)
 	}
 	switch(key) {
 		//if (k1 == GLFW_KEY_F2) {
+		case XK_a:
+		    	show_jason();
+			break;
 		case XK_Escape:
 			done=1;
 			break;
