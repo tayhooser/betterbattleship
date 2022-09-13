@@ -497,6 +497,8 @@ void init(void)
 	nbuttons++;
 }
 extern int show_dwelch();
+extern int show_jason();
+extern void show_taylor();
 
 void check_keys(XEvent *e)
 {
@@ -532,6 +534,12 @@ void check_keys(XEvent *e)
 			break;
 		case XK_d:
 			show_dwelch();
+      break;
+		case XK_t:
+			show_taylor();
+			break;
+    case XK_a:
+		  show_jason();
 			break;
 	}
 }

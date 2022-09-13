@@ -3,8 +3,9 @@ LFLAGS = -lrt -lX11 -lGLU -lGL -lm #-lXrandr
 
 all: bship
 
-bship: bship.o log.o 
-	g++ bship.o log.o dwelch.cpp libggfonts.a $(LFLAGS) -o bship 
+bship: bship.o log.o
+
+	g++ bship.o log.o dwelch.cpp jrodriguez4.cpp thooser.cpp libggfonts.a $(LFLAGS) -o bship
 
 bship.o: bship.cpp
 	g++ -c bship.cpp
