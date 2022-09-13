@@ -496,6 +496,7 @@ void init(void)
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
 }
+extern int show_my_name();
 
 void check_keys(XEvent *e)
 {
@@ -528,6 +529,9 @@ void check_keys(XEvent *e)
 			if (gamemode > MODE_GAMEOVER) {
 				gamemode = MODE_READY;
 			}
+			break;
+		case XK_d:
+			show_my_name();
 			break;
 	}
 }
