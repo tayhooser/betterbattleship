@@ -154,6 +154,7 @@ enum {
 	MODE_GAMEOVER
 };
 static int gamemode=0;
+bool credits = false;
 
 
 class X11_wrapper {
@@ -471,6 +472,31 @@ void init(void)
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
 	//
+	//Credits button
+	//size and position
+	button[nbuttons].r.width = 200;
+	button[nbuttons].r.height = 50;
+	button[nbuttons].r.left = 10;
+	button[nbuttons].r.bot = 70;
+	button[nbuttons].r.right =
+		button[nbuttons].r.left + button[nbuttons].r.width;
+	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+	button[nbuttons].r.centerx =
+		(button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+	button[nbuttons].r.centery =
+		(button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+	strcpy(button[nbuttons].text, "Credits");
+	button[nbuttons].down = 0;
+	button[nbuttons].click = 0;
+	button[nbuttons].color[0] = 0.4f;
+	button[nbuttons].color[1] = 0.4f;
+	button[nbuttons].color[2] = 0.7f;
+	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+	button[nbuttons].text_color = 0x00ffffff;
+	nbuttons++;
+	//
 	//Reset button
 	//size and position
 	button[nbuttons].r.width = 200;
@@ -571,7 +597,11 @@ void mouse_click(int ibutton, int action, int x, int y)
 					done = 1;
 				}
 				if (i==1) {
-					//user clicked button 0
+					//user clicked credits
+					credits = !credits;
+				}
+				if (i==2) {
+					//user clicked reset
 					reset_grids();
 				}
 			}
@@ -822,6 +852,31 @@ void get_grid_center(const int g, const int i, const int j, int cent[2])
 	cent[1] += (bq * i);
 }
 
+void showCredits()
+{
+	Rect r;
+	int xcent = xres / 2;
+	int ycent = yres / 2;
+	int w = 350;
+	int h = 220;
+	glColor3f(0, 0, 0);
+	glBegin(GL_QUADS);
+		glVertex2f(xcent-w, ycent-h);
+		glVertex2f(xcent-w, ycent+h);
+		glVertex2f(xcent+w, ycent+h);
+		glVertex2f(xcent+w, ycent-h);
+	glEnd();
+	r.left = xcent;
+	r.bot  = ycent + 80;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, " Taylor Hooser");
+	ggprint16(&r, 50, 0xffffffff, "Jason Rodriguez");
+	ggprint16(&r, 50, 0xffffffff, " Danny Simpson");
+	ggprint16(&r, 50, 0xffffffff, "Cecilio Navarro");
+	ggprint16(&r, 50, 0xffffffff, " Delaney Welch");
+	
+}
+
 void render(void)
 {
 	int i,j;
@@ -953,6 +1008,46 @@ void render(void)
 		r.left = xres/2;
 		ggprint16(&r, 0, 0x0088aaff, "BATTLESHIP GAME STARTER KIT");
 	}
+	
+	//
+	r.left = 4;
+	r.bot  = 200;
+	r.center = 0;
+	switch(gamemode) {
+		case MODE_READY:
+			ggprint16(&r, 0, 0x00ffffff, "Press F2 to place ships!");
+			break;
+		case MODE_PLACE_SHIPS:
+			ggprint16(&r, 0, 0x00ffffff,
+				"Press F2 when finished placing ships.");
+			break;
+		case MODE_FIND_SHIPS:
+			ggprint16(&r, 0, 0x00ffffff, "Search for ships on grid!");
+			break;
+		case MODE_GAMEOVER:
+			ggprint16(&r, 0, 0x00ffffff, "Game over!");
+			break;
+	}
+	r.left = 4;
+	r.bot  = 160;
+	r.center = 0;
+	ggprint16(&r, 20, 0x00ffff00, "nships placed: %i",nships);
+	ggprint16(&r, 20, 0x00ffff00, "nships sunk: %i",nshipssunk);
+	ggprint16(&r, 20, 0x00ffff00, "nbombs left: %i",nbombs);
+	
+	if (credits) { // put before buttons to allow button presses during credits
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColor4f(0, 0, 0, 0.4f);
+		glBegin(GL_QUADS);
+			glVertex2f(0, yres);
+			glVertex2f(xres, yres);
+			glVertex2f(xres, 0);
+			glVertex2f(0, 0);
+			glEnd();
+		glDisable(GL_BLEND);
+	}
+	
 	//
 	//draw all buttons
 	//
@@ -990,31 +1085,10 @@ void render(void)
 			ggprint16(&r, 0, button[i].text_color, button[i].text);
 		}
 	}
-	//
-	r.left = 4;
-	r.bot  = 200;
-	r.center = 0;
-	switch(gamemode) {
-		case MODE_READY:
-			ggprint16(&r, 0, 0x00ffffff, "Press F2 to place ships!");
-			break;
-		case MODE_PLACE_SHIPS:
-			ggprint16(&r, 0, 0x00ffffff,
-				"Press F2 when finished placing ships.");
-			break;
-		case MODE_FIND_SHIPS:
-			ggprint16(&r, 0, 0x00ffffff, "Search for ships on grid!");
-			break;
-		case MODE_GAMEOVER:
-			ggprint16(&r, 0, 0x00ffffff, "Game over!");
-			break;
+	
+	if (credits) {
+		showCredits();
 	}
-	r.left = 4;
-	r.bot  = 160;
-	r.center = 0;
-	ggprint16(&r, 20, 0x00ffff00, "nships placed: %i",nships);
-	ggprint16(&r, 20, 0x00ffff00, "nships sunk: %i",nshipssunk);
-	ggprint16(&r, 20, 0x00ffff00, "nbombs left: %i",nbombs);
 }
 
 
