@@ -22,7 +22,7 @@
 //#include <GL/glu.h>
 #include "log.h"
 #include "fonts.h"
-#include "dsimpson.h"
+#include "jrodriguez4.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -155,8 +155,8 @@ enum {
 	MODE_GAMEOVER
 };
 static int gamemode=0;
-bool credits = false;
-unsigned int pause_screen = 0;
+bool credits = false; // Credits off
+int help = 0; // Help off
 
 class X11_wrapper {
 private:
@@ -552,17 +552,18 @@ void check_keys(XEvent *e)
 		case XK_Escape:
 			done=1;
 			break;
+		case XK_F1:
+			help = toggle_help(help);
+			break;
 		case XK_F2:
-			if(pause_screen == 0){
-			    gamemode++;
-			    if (gamemode == MODE_FIND_SHIPS) {
-				    nshipssunk = 0;
-				    nbombs = 10;
-			    }
-			    if (gamemode > MODE_GAMEOVER) {
-				    gamemode = MODE_READY;
-			    }
-		    }
+			gamemode++;
+			if (gamemode == MODE_FIND_SHIPS) {
+				nshipssunk = 0;
+				nbombs = 10;
+			}
+			if (gamemode > MODE_GAMEOVER) {
+				gamemode = MODE_READY;
+			}
 			break;
 		case XK_s:
 			show_danny();
@@ -578,9 +579,6 @@ void check_keys(XEvent *e)
 			break;
 		case XK_a:
 			show_jason();
-			break;
-		case XK_p:
-			pause_screen = manage_state(pause_screen);
 			break;
 	}
 }
@@ -858,8 +856,7 @@ void get_grid_center(const int g, const int i, const int j, int cent[2])
 	cent[1] += (bq * i);
 }
 
-void showCredits()
-{
+void showCredits() {
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -882,8 +879,34 @@ void showCredits()
 	ggprint16(&r, 50, 0xffffffff, " Delaney Welch");
 	
 }
-
-
+/*
+void showHelp() {
+	int xcent = xres / 2;
+	int ycent = yres / 2;
+	int w = 350;
+	int h = 220;
+	glColor3f(0, 0, 0);
+	glBegin(GL_QUADS);
+		glVertex2f(xcent-w, ycent-h);
+		glVertex2f(xcent-w, ycent+h);
+		glVertex2f(xcent+w, ycent+h);
+		glVertex2f(xcent+w, ycent-h);
+	glEnd();
+	Rect r;
+	r.left = xcent;
+	r.bot = ycent + 120;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, " --- HELP ---");
+	ggprint16(&r, 25, 0xffffffff, " press 's' for Danny");
+	ggprint16(&r, 25, 0xffffffff, " press 'g' for Cecilio");
+	ggprint16(&r, 25, 0xffffffff, " press 'd' for Delaney");
+	ggprint16(&r, 25, 0xffffffff, " press 't' for Taylor");
+	ggprint16(&r, 25, 0xffffffff, " press 'a' for Jason");
+	ggprint16(&r, 25, 0xffffffff, " press 'c' for Credits");
+	ggprint16(&r, 25, 0xffffffff, " press 'Esc' to exit");
+	
+}
+*/
 void render(void)
 {
 	int i,j;
@@ -1096,8 +1119,8 @@ void render(void)
 	if (credits) {
 		showCredits();
 	}
-	if (pause_screen != 0) {
-        PauseScreen(xres, yres);
+	if (help) {
+		show_help(xres,yres);
 	}
 }
 

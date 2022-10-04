@@ -1,11 +1,10 @@
 CFLAGS = -pthread
 LFLAGS = -lrt -lX11 -lGLU -lGL -lm #-lXrandr
-INCLUDE = cnavarro.cpp dsimpson.cpp dwelch.cpp jrodriguez4.cpp thooser.cpp
 
 all: bship
 
-bship: bship.o log.o $(INCLUDE)
-	g++ bship.o log.o $(INCLUDE) libggfonts.a $(LFLAGS) -o bship
+bship: bship.o log.o jrodriguez4.h
+	g++ bship.o log.o cnavarro.cpp dsimpson.cpp dwelch.cpp jrodriguez4.cpp thooser.cpp libggfonts.a $(LFLAGS) -o bship
 
 bship.o: bship.cpp
 	g++ -c bship.cpp
