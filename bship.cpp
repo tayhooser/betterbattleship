@@ -120,15 +120,17 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[3] = {"./x.png", "./explosion.png", "./bship.png"};
+Image img[4] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png"};
 //
 //
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bshipTexture;
+GLuint portraitTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
+Image *portraitImage = NULL;
 //
 #define MAXSHIPS 4
 typedef struct t_ship {
@@ -381,11 +383,13 @@ void init_opengl(void)
 	xImage          = &img[0];
 	explosionImage  = &img[1];
 	bshipImage      = &img[2];
+	portraitImage 	= &img[3];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
 	glGenTextures(1, &bshipTexture);
+	glGenTextures(1, &portraitTexture);
 	//
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -415,6 +419,15 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, bshipImage->data);
+	//-------------------------------------------------------------------------
+	//portrait
+	w = portraitImage->width;
+	h = portraitImage->height;
+	glBindTexture(GL_TEXTURE_2D, portraitTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
@@ -500,7 +513,7 @@ void init(void)
 	//Reset button
 	//size and position
 	button[nbuttons].r.width = 200;
-	button[nbuttons].r.height = 100;
+	button[nbuttons].r.height = 50;
 	button[nbuttons].r.left = xres/2 - button[nbuttons].r.width/2;
 	button[nbuttons].r.bot = 50;
 	button[nbuttons].r.right =
@@ -528,6 +541,8 @@ extern int show_jason();
 extern int show_danny();
 extern void show_taylor();
 extern void show_cecilio();
+
+extern void showCredits(int xres, int yres, GLuint portraitTexture);
 
 void check_keys(XEvent *e)
 {
@@ -852,31 +867,6 @@ void get_grid_center(const int g, const int i, const int j, int cent[2])
 	cent[1] += (bq * i);
 }
 
-void showCredits()
-{
-	Rect r;
-	int xcent = xres / 2;
-	int ycent = yres / 2;
-	int w = 350;
-	int h = 220;
-	glColor3f(0, 0, 0);
-	glBegin(GL_QUADS);
-		glVertex2f(xcent-w, ycent-h);
-		glVertex2f(xcent-w, ycent+h);
-		glVertex2f(xcent+w, ycent+h);
-		glVertex2f(xcent+w, ycent-h);
-	glEnd();
-	r.left = xcent;
-	r.bot  = ycent + 80;
-	r.center = 50;
-	ggprint16(&r, 50, 0xffffffff, " Taylor Hooser");
-	ggprint16(&r, 50, 0xffffffff, "Jason Rodriguez");
-	ggprint16(&r, 50, 0xffffffff, " Danny Simpson");
-	ggprint16(&r, 50, 0xffffffff, "Cecilio Navarro");
-	ggprint16(&r, 50, 0xffffffff, " Delaney Welch");
-	
-}
-
 void render(void)
 {
 	int i,j;
@@ -1036,16 +1026,7 @@ void render(void)
 	ggprint16(&r, 20, 0x00ffff00, "nbombs left: %i",nbombs);
 	
 	if (credits) { // put before buttons to allow button presses during credits
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		glColor4f(0, 0, 0, 0.4f);
-		glBegin(GL_QUADS);
-			glVertex2f(0, yres);
-			glVertex2f(xres, yres);
-			glVertex2f(xres, 0);
-			glVertex2f(0, 0);
-			glEnd();
-		glDisable(GL_BLEND);
+		showCredits(xres, yres, portraitTexture);
 	}
 	
 	//
@@ -1079,16 +1060,10 @@ void render(void)
 		r.left = button[i].r.centerx;
 		r.bot  = button[i].r.centery-8;
 		r.center = 1;
-		if (button[i].down) {
-			ggprint16(&r, 0, button[i].text_color, "Pressed!");
-		} else {
-			ggprint16(&r, 0, button[i].text_color, button[i].text);
-		}
+		ggprint16(&r, 0, button[i].text_color, button[i].text);
+
 	}
 	
-	if (credits) {
-		showCredits();
-	}
 }
 
 
