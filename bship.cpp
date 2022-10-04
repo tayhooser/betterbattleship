@@ -22,6 +22,7 @@
 //#include <GL/glu.h>
 #include "log.h"
 #include "fonts.h"
+#include "dsimpson.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -120,17 +121,15 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[4] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png"};
+Image img[3] = {"./x.png", "./explosion.png", "./bship.png"};
 //
 //
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bshipTexture;
-GLuint portraitTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
-Image *portraitImage = NULL;
 //
 #define MAXSHIPS 4
 typedef struct t_ship {
@@ -157,7 +156,7 @@ enum {
 };
 static int gamemode=0;
 bool credits = false;
-
+unsigned int pause_screen = 0;
 
 class X11_wrapper {
 private:
@@ -383,13 +382,11 @@ void init_opengl(void)
 	xImage          = &img[0];
 	explosionImage  = &img[1];
 	bshipImage      = &img[2];
-	portraitImage 	= &img[3];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
 	glGenTextures(1, &bshipTexture);
-	glGenTextures(1, &portraitTexture);
 	//
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -419,15 +416,6 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, bshipImage->data);
-	//-------------------------------------------------------------------------
-	//portrait
-	w = portraitImage->width;
-	h = portraitImage->height;
-	glBindTexture(GL_TEXTURE_2D, portraitTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
@@ -513,7 +501,7 @@ void init(void)
 	//Reset button
 	//size and position
 	button[nbuttons].r.width = 200;
-	button[nbuttons].r.height = 50;
+	button[nbuttons].r.height = 100;
 	button[nbuttons].r.left = xres/2 - button[nbuttons].r.width/2;
 	button[nbuttons].r.bot = 50;
 	button[nbuttons].r.right =
@@ -542,8 +530,6 @@ extern int show_danny();
 extern void show_taylor();
 extern void show_cecilio();
 
-extern void showCredits(int xres, int yres, GLuint portraitTexture);
-
 void check_keys(XEvent *e)
 {
 	static int shift=0;
@@ -567,14 +553,16 @@ void check_keys(XEvent *e)
 			done=1;
 			break;
 		case XK_F2:
-			gamemode++;
-			if (gamemode == MODE_FIND_SHIPS) {
-				nshipssunk = 0;
-				nbombs = 10;
-			}
-			if (gamemode > MODE_GAMEOVER) {
-				gamemode = MODE_READY;
-			}
+			if(pause_screen == 0){
+			    gamemode++;
+			    if (gamemode == MODE_FIND_SHIPS) {
+				    nshipssunk = 0;
+				    nbombs = 10;
+			    }
+			    if (gamemode > MODE_GAMEOVER) {
+				    gamemode = MODE_READY;
+			    }
+		    }
 			break;
 		case XK_s:
 			show_danny();
@@ -590,6 +578,9 @@ void check_keys(XEvent *e)
 			break;
 		case XK_a:
 			show_jason();
+			break;
+		case XK_p:
+			pause_screen = manage_state(pause_screen);
 			break;
 	}
 }
@@ -867,6 +858,32 @@ void get_grid_center(const int g, const int i, const int j, int cent[2])
 	cent[1] += (bq * i);
 }
 
+void showCredits()
+{
+	Rect r;
+	int xcent = xres / 2;
+	int ycent = yres / 2;
+	int w = 350;
+	int h = 220;
+	glColor3f(0, 0, 0);
+	glBegin(GL_QUADS);
+		glVertex2f(xcent-w, ycent-h);
+		glVertex2f(xcent-w, ycent+h);
+		glVertex2f(xcent+w, ycent+h);
+		glVertex2f(xcent+w, ycent-h);
+	glEnd();
+	r.left = xcent;
+	r.bot  = ycent + 80;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, " Taylor Hooser");
+	ggprint16(&r, 50, 0xffffffff, "Jason Rodriguez");
+	ggprint16(&r, 50, 0xffffffff, " Danny Simpson");
+	ggprint16(&r, 50, 0xffffffff, "Cecilio Navarro");
+	ggprint16(&r, 50, 0xffffffff, " Delaney Welch");
+	
+}
+
+
 void render(void)
 {
 	int i,j;
@@ -1026,7 +1043,16 @@ void render(void)
 	ggprint16(&r, 20, 0x00ffff00, "nbombs left: %i",nbombs);
 	
 	if (credits) { // put before buttons to allow button presses during credits
-		showCredits(xres, yres, portraitTexture);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColor4f(0, 0, 0, 0.4f);
+		glBegin(GL_QUADS);
+			glVertex2f(0, yres);
+			glVertex2f(xres, yres);
+			glVertex2f(xres, 0);
+			glVertex2f(0, 0);
+			glEnd();
+		glDisable(GL_BLEND);
 	}
 	
 	//
@@ -1060,10 +1086,19 @@ void render(void)
 		r.left = button[i].r.centerx;
 		r.bot  = button[i].r.centery-8;
 		r.center = 1;
-		ggprint16(&r, 0, button[i].text_color, button[i].text);
-
+		if (button[i].down) {
+			ggprint16(&r, 0, button[i].text_color, "Pressed!");
+		} else {
+			ggprint16(&r, 0, button[i].text_color, button[i].text);
+		}
 	}
 	
+	if (credits) {
+		showCredits();
+	}
+	if (pause_screen != 0) {
+        PauseScreen(xres, yres);
+	}
 }
 
 
