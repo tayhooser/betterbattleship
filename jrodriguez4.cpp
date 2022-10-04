@@ -45,6 +45,7 @@ void show_help( int xres, int yres) {
 		ggprint16(&r, 25, 0xffffffff, " press 'p' for Pause");
 		ggprint16(&r, 25, 0xffffffff, " press 'o' for Game Over");
 		ggprint16(&r, 25, 0xffffffff, " press 'F1' for Help");
+		ggprint16(&r, 25, 0xffffffff, " press 'i' for Intro");
         ggprint16(&r, 25, 0xffffffff, " press 'Esc' to quit game");
 
 }
