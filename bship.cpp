@@ -897,6 +897,13 @@ void showHelp() {
 	r.bot = ycent + 120;
 	r.center = 50;
 	ggprint16(&r, 50, 0xffffffff, " --- HELP ---");
+	ggprint16(&r, 25, 0xffffffff, " press 's' for Danny");
+	ggprint16(&r, 25, 0xffffffff, " press 'g' for Cecilio");
+	ggprint16(&r, 25, 0xffffffff, " press 'd' for Delaney");
+	ggprint16(&r, 25, 0xffffffff, " press 't' for Taylor");
+	ggprint16(&r, 25, 0xffffffff, " press 'a' for Jason");
+	ggprint16(&r, 25, 0xffffffff, " press 'c' for Credits");
+	ggprint16(&r, 25, 0xffffffff, " press 'Esc' to exit");
 	
 }
 void render(void)
