@@ -22,6 +22,7 @@
 //#include <GL/glu.h>
 #include "log.h"
 #include "fonts.h"
+#include "jrodriguez4.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -154,8 +155,8 @@ enum {
 	MODE_GAMEOVER
 };
 static int gamemode=0;
-bool credits = false;
-
+bool credits = false; // Credits off
+int help = 0; // Help off
 
 class X11_wrapper {
 private:
@@ -551,6 +552,9 @@ void check_keys(XEvent *e)
 		case XK_Escape:
 			done=1;
 			break;
+		case XK_F1:
+			help = show_help(help);
+			break;
 		case XK_F2:
 			gamemode++;
 			if (gamemode == MODE_FIND_SHIPS) {
@@ -852,8 +856,7 @@ void get_grid_center(const int g, const int i, const int j, int cent[2])
 	cent[1] += (bq * i);
 }
 
-void showCredits()
-{
+void showCredits() {
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -877,6 +880,25 @@ void showCredits()
 	
 }
 
+void showHelp() {
+	int xcent = xres / 2;
+	int ycent = yres / 2;
+	int w = 350;
+	int h = 220;
+	glColor3f(0, 0, 0);
+	glBegin(GL_QUADS);
+		glVertex2f(xcent-w, ycent-h);
+		glVertex2f(xcent-w, ycent+h);
+		glVertex2f(xcent+w, ycent+h);
+		glVertex2f(xcent+w, ycent-h);
+	glEnd();
+	Rect r;
+	r.left = xcent;
+	r.bot = ycent + 120;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, " --- HELP ---");
+	
+}
 void render(void)
 {
 	int i,j;
@@ -1088,6 +1110,9 @@ void render(void)
 	
 	if (credits) {
 		showCredits();
+	}
+	if (help) {
+		showHelp();
 	}
 }
 
