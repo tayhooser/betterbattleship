@@ -22,6 +22,7 @@
 //#include <GL/glu.h>
 #include "log.h"
 #include "fonts.h"
+#include "dsimpson.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -157,6 +158,7 @@ enum {
 };
 static int gamemode=0;
 bool credits = false;
+unsigned int pause_screen = 0;
 
 
 class X11_wrapper {
@@ -590,6 +592,9 @@ void check_keys(XEvent *e)
 			break;
 		case XK_a:
 			show_jason();
+			break;
+		case XK_p:
+			pause_screen = manage_state(pause_screen);
 			break;
 	}
 }
@@ -1062,6 +1067,10 @@ void render(void)
 		r.center = 1;
 		ggprint16(&r, 0, button[i].text_color, button[i].text);
 
+	}
+	
+	if (pause_screen != 0) {
+        PauseScreen(xres, yres);
 	}
 	
 }
