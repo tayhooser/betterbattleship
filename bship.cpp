@@ -23,6 +23,7 @@
 #include "log.h"
 #include "fonts.h"
 #include "dsimpson.h"
+#include "jrodriguez4.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -159,6 +160,7 @@ enum {
 static int gamemode=0;
 bool credits = false;
 unsigned int pause_screen = 0;
+int help = 0; // Help off
 
 
 class X11_wrapper {
@@ -593,8 +595,14 @@ void check_keys(XEvent *e)
 		case XK_a:
 			show_jason();
 			break;
+		case XK_c:
+			credits = !credits;
+			break;
 		case XK_p:
 			pause_screen = manage_state(pause_screen);
+			break;
+		case XK_F1:
+			help = toggle_help(help);
 			break;
 	}
 }
@@ -1071,6 +1079,10 @@ void render(void)
 	
 	if (pause_screen != 0) {
         PauseScreen(xres, yres);
+	}
+	
+	if (help) {
+		show_help(xres,yres);
 	}
 	
 }
