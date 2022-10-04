@@ -158,9 +158,10 @@ enum {
 	MODE_GAMEOVER
 };
 static int gamemode=0;
-bool credits = false;
-unsigned int pause_screen = 0;
-int help = 0; // Help off
+bool credits = false; //off on startup
+bool intro = true; // plays on startup
+unsigned int pause_screen = 0; //off on startup
+int help = 0; // off on startup
 
 
 class X11_wrapper {
@@ -547,6 +548,7 @@ extern void show_taylor();
 extern void show_cecilio();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
+extern void showIntro(int xres, int yres);
 
 void check_keys(XEvent *e)
 {
@@ -603,6 +605,9 @@ void check_keys(XEvent *e)
 			break;
 		case XK_F1:
 			help = toggle_help(help);
+			break;
+		case XK_i:
+			intro = !intro;
 			break;
 	}
 }
@@ -1085,6 +1090,9 @@ void render(void)
 		show_help(xres,yres);
 	}
 	
+	if (intro) {
+		showIntro(xres, yres);
+	}
 }
 
 
