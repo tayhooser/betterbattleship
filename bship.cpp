@@ -24,6 +24,7 @@
 #include "fonts.h"
 #include "dsimpson.h"
 #include "jrodriguez4.h"
+#include "dwelch.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -157,11 +158,13 @@ enum {
 	MODE_FIND_SHIPS,
 	MODE_GAMEOVER
 };
+
 static int gamemode=0;
 bool credits = false; //off on startup
 bool intro = true; // plays on startup
 unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
+unsigned int game_over = 0; //off on startup
 
 
 class X11_wrapper {
@@ -549,6 +552,7 @@ extern void show_cecilio();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
 extern void showIntro(int xres, int yres);
+extern void showGameOver(int xres, int yres);
 
 void check_keys(XEvent *e)
 {
@@ -608,6 +612,9 @@ void check_keys(XEvent *e)
 			break;
 		case XK_i:
 			intro = !intro;
+			break;
+		case XK_o:
+			game_over = manage_over_state(game_over);
 			break;
 	}
 }
@@ -1014,7 +1021,8 @@ void render(void)
 		//
 		r.bot  = yres-50;
 		r.left = xres/2;
-		ggprint16(&r, 0, 0x0088aaff, "BATTLESHIP GAME STARTER KIT");
+		ggprint16(&r, 50, 0x0088aaff, "BATTLESHIP GAME STARTER KIT");
+		ggprint16(&r, 0, 0x0088aaff, "**PRESS F1 FOR HELP**");
 	}
 	
 	//
@@ -1093,6 +1101,10 @@ void render(void)
 	if (intro) {
 		showIntro(xres, yres);
 	}
+	
+	if (game_over) {
+		showGameOver(xres, yres);
+	}	
 }
 
 

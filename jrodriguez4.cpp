@@ -40,8 +40,12 @@ void show_help( int xres, int yres) {
         ggprint16(&r, 25, 0xffffffff, " press 'd' for Delaney");
         ggprint16(&r, 25, 0xffffffff, " press 't' for Taylor");
         ggprint16(&r, 25, 0xffffffff, " press 'a' for Jason");
+		ggprint16(&r, 25, 0xffffffff, "");
         ggprint16(&r, 25, 0xffffffff, " press 'c' for Credits");
-        ggprint16(&r, 25, 0xffffffff, " press 'Esc' to exit");
+		ggprint16(&r, 25, 0xffffffff, " press 'p' for Pause");
+		ggprint16(&r, 25, 0xffffffff, " press 'o' for Game Over");
+		ggprint16(&r, 25, 0xffffffff, " press 'F1' for Help");
+        ggprint16(&r, 25, 0xffffffff, " press 'Esc' to quit game");
 
 }
 
