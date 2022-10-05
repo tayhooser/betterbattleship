@@ -570,12 +570,6 @@ void init(void)
 
 // -------- Function prototypes, move later ---------------------------
 
-extern int show_dwelch();
-extern int show_jason();
-extern int show_danny();
-extern void show_taylor();
-extern void show_cecilio();
-
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
 extern void showIntro(int xres, int yres);
 extern void showGameOver(int xres, int yres);
