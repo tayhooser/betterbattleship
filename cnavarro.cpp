@@ -12,8 +12,12 @@ unsigned int showIntro(unsigned int s) {
 	return s;
 }
 
-void showIntro(int xres, int yres)
+void showIntro(int xres, int yres, GLuint gameoverTexture)
 {
+    int imgdim = 64;
+    int imgx;
+    int imgy;
+
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -32,5 +36,22 @@ void showIntro(int xres, int yres)
 	ggprint16(&r, 50, 0xffffffff, "Hello");
 	ggprint16(&r, 50, 0xffffffff, "Press: 'I' to continue");
 	//ggprint16(&r, 50, 0xffffffff, "Press: 'F1' for help screen");
+	
+	//Display img
+	imgx = xcent - 100;
+        imgy = ycent + 150 + 16;
+
+        glBindTexture(GL_TEXTURE_2D, gameoverTexture);
+        glBegin(GL_QUADS);
+                glTexCoord2f(0.0f, 1.0f);
+                glVertex2f(imgx-imgdim, imgy-imgdim);
+                glTexCoord2f(0.0f, 0.0f);
+                glVertex2f(imgx-imgdim, imgy+imgdim);
+                glTexCoord2f(1.0f, 0.0f);
+                glVertex2f(imgx+imgdim, imgy+imgdim);
+                glTexCoord2f(1.0f, 1.0f);
+                glVertex2f(imgx+imgdim, imgy-imgdim);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
 	
 }
