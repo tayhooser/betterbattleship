@@ -6,8 +6,8 @@
 //
 //This program needs further refactoring.
 //Maybe a global class.
-//
-//
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,11 +35,14 @@ void render();
 void get_grid_center(const int g, const int i, const int j, int cent[2]);
 int xres=1200;
 int yres=800;
-//
+
+
+// -----------GRID STRUCTURE ------------------------------------------
+
 #define MAXGRID 16
 #define GRIDDIM 10
 #define NGRIDS 2
-//
+
 typedef struct t_grid {
 	int status;
 	int shipno;
@@ -52,6 +55,9 @@ int grid_dim = GRIDDIM;
 int board_dim;
 int qsize;
 int done=0;
+
+// ---------- BUTTON STRUCTURE------------------------------------------
+
 int lbutton=0;
 int rbutton=0;
 #define MAXBUTTONS 8
@@ -67,8 +73,10 @@ typedef struct t_button {
 } Button;
 Button button[MAXBUTTONS];
 int nbuttons=0;
-//
-//
+
+
+// -------------IMAGE STRUCTURE----------------------------------------
+
 class Image {
 public:
 	int width, height;
@@ -123,9 +131,9 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[4] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png"};
-//
-//
+Image img[4] = {"./x.png", "./explosion.png", "./bship.png",
+	"./portraitPlaceholder.png"};
+
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bshipTexture;
@@ -134,7 +142,10 @@ Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
-//
+
+
+// -----------SHIP STRUCTURE------------------------------------------
+
 #define MAXSHIPS 4
 typedef struct t_ship {
 	int status;
@@ -146,7 +157,9 @@ Ship ship[MAXSHIPS];
 int nships=0;
 int nshipssunk=0;
 int nbombs=0;
-//
+
+// ---------GAMEMODE INFO----------------------------------------------
+
 //modes:
 //0 game is at rest
 //1 place ships on left grid
@@ -159,6 +172,8 @@ enum {
 	MODE_GAMEOVER
 };
 
+// TODO: make each gamemode consistent (enum? boolean? int?)
+
 static int gamemode=0;
 bool credits = false; //off on startup
 bool intro = true; // plays on startup
@@ -166,6 +181,8 @@ unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
 unsigned int game_over = 0; //off on startup
 
+
+// --------------------------------------------------------------------
 
 class X11_wrapper {
 private:
@@ -263,8 +280,8 @@ int check_connecting_quad(int i, int j, int gridno);
 int check_for_sink(int s);
 
 
-//-----------------------------------------------------------------------------
-//Setup timers
+//----------TIMERS------------------------------------------------------
+
 const double physicsRate = 1.0 / 30.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -279,7 +296,9 @@ double timeDiff(struct timespec *start, struct timespec *end) {
 void timeCopy(struct timespec *dest, struct timespec *source) {
 	memcpy(dest, source, sizeof(struct timespec));
 }
-//-----------------------------------------------------------------------------
+
+
+//---------MAIN-------------------------------------------------------
 
 int main()
 {
@@ -331,9 +350,12 @@ int main()
 	return 0;
 }
 
+// -------------------------------------------------------------------
+
 unsigned char *buildAlphaData(Image *img)
 {
 	//add 4th component to RGB stream...
+	// transparency 
 	int i;
 	int a,b,c;
 	unsigned char *newdata, *ptr;
@@ -385,9 +407,9 @@ void init_opengl(void)
 	//
 	//load the images file into a ppm structure.
 	//
-//	xImage          = ppm6GetImage("./x.ppm");
-//	explosionImage  = ppm6GetImage("./explosion.ppm");
-//	bshipImage      = ppm6GetImage("./bship.ppm");
+	//	xImage          = ppm6GetImage("./x.ppm");
+	//	explosionImage  = ppm6GetImage("./explosion.ppm");
+	//	bshipImage      = ppm6GetImage("./bship.ppm");
 	xImage          = &img[0];
 	explosionImage  = &img[1];
 	bshipImage      = &img[2];
@@ -400,7 +422,7 @@ void init_opengl(void)
 	glGenTextures(1, &portraitTexture);
 	//
 	//load textures into memory
-	//-------------------------------------------------------------------------
+	//-------------------------------
 	//H
 	w = xImage->width;
 	h = xImage->height;
@@ -409,7 +431,7 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, xImage->data);
-	//-------------------------------------------------------------------------
+	//-------------------------------
 	//V
 	w = explosionImage->width;
 	h = explosionImage->height;
@@ -418,7 +440,7 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, explosionImage->data);
-	//-------------------------------------------------------------------------
+	//-------------------------------
 	//bship
 	w = bshipImage->width;
 	h = bshipImage->height;
@@ -427,7 +449,7 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, bshipImage->data);
-	//-------------------------------------------------------------------------
+	//-------------------------------
 	//portrait
 	w = portraitImage->width;
 	h = portraitImage->height;
@@ -436,7 +458,7 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
-	//-------------------------------------------------------------------------
+	//-------------------------------
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
@@ -456,6 +478,8 @@ void reset_grids(void)
 	gamemode = MODE_READY;
 	nships = 0;
 }
+
+// TODO: make button function
 
 void init(void)
 {
@@ -544,6 +568,8 @@ void init(void)
 	nbuttons++;
 }
 
+// -------- Function prototypes, move later ---------------------------
+
 extern int show_dwelch();
 extern int show_jason();
 extern int show_danny();
@@ -553,6 +579,8 @@ extern void show_cecilio();
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
 extern void showIntro(int xres, int yres);
 extern void showGameOver(int xres, int yres);
+
+// ------INPUT--------------------------------------------------------
 
 void check_keys(XEvent *e)
 {
@@ -819,6 +847,8 @@ void check_mouse(XEvent *e)
 	if (rbutton)
 		mouse_click(2, 1,x,y);
 }
+
+// ----------ACTUAL GAMEPLAY------------------------------------------
 
 void physics()
 {
