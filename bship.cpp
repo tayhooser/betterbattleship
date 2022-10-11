@@ -44,8 +44,8 @@ int yres=800;
 #define NGRIDS 2
 
 typedef struct t_grid {
-	int status;
-	int shipno;
+	int status;  //status of unit 0=empty 1=shipunit 2=damagedunit
+	int shipno;  //ship ID placed there
 	int over;
 	float color[4];
 } Grid;
@@ -148,10 +148,25 @@ Image *portraitImage = NULL;
 
 #define MAXSHIPS 4
 typedef struct t_ship {
-	int status;
-	int pos[16][2];
+	int pos[16][2]; //position of ship origin
 	int n;
 	int hv;
+	
+	int status; //status of ship, defined below
+	enum {
+		SHIP_HEALTHY,
+		SHIP_DAMAGED,
+		SHIP_SUNK
+	};
+	
+	int type; // type of ship, defined below
+	enum {
+		SHIP_ATTACK=0,
+		SHIP_CAPITAL,
+		SHIP_REPAIR,
+		SHIP_PLANET
+	};
+	
 } Ship;
 Ship ship[MAXSHIPS];
 int nships=0;
