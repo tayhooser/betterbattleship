@@ -829,6 +829,28 @@ void check_mouse(XEvent *e)
 			}
 			if (gamemode == MODE_FIND_SHIPS) {
 				get_grid_center(2,i,j,cent);
+				if (feature_mode != 0) {
+					if (x >= cent[0]-qsize &&
+						x <= cent[0]+qsize &&
+						y >= cent[1]-qsize &&
+						y <= cent[1]+qsize && 
+						missileType == 0) {
+						grid2[i][j].over=1;
+						break;
+					}
+					if (x >= cent[0]-qsize &&
+						x <= cent[0]+qsize &&
+						y >= cent[1]-qsize &&
+						y <= cent[1]+qsize && 
+						missileType == 1) {
+						grid2[i][j].over=1;
+						grid2[i + 1][j].over=1;
+						grid2[i - 1][j].over=1;
+						grid2[i][j + 1].over=1;
+						grid2[i][j - 1].over=1;
+						break;
+					}
+				}
 				if (x >= cent[0]-qsize &&
 					x <= cent[0]+qsize &&
 					y >= cent[1]-qsize &&
@@ -850,20 +872,20 @@ void check_mouse(XEvent *e)
 					break;
 				}
 			}
-			if (feature_mode != 0) {
-				if (!LaunchMissile(x, y, cent, qsize, missileType)) {
-					grid2[i][j].over=1;
-					break;
-				}
-				if (LaunchMissile(x, y, cent, qsize, missileType)) {
-					grid2[i][j].over=1;
-					grid2[i + 1][j].over=1;
-					grid2[i - 1][j].over=1;
-					grid2[i][j + 1].over=1;
-					grid2[i][j - 1].over=1;
-					break;
-				}
-			}
+			//if (feature_mode != 0) {
+				//if (!LaunchMissile(x, y, cent, qsize, missileType)) {
+					//grid2[i][j].over=1;
+					//break;
+				//}
+				//if (LaunchMissile(x, y, cent, qsize, missileType)) {
+					//grid2[i][j].over=1;
+					//grid2[i + 1][j].over=1;
+					//grid2[i - 1][j].over=1;
+					//grid2[i][j + 1].over=1;
+					//grid2[i][j - 1].over=1;
+					//break;
+				//}
+			//}
 		}
 		if (grid1[i][j].over) break;
 		if (grid2[i][j].over) break;
@@ -1175,7 +1197,10 @@ void render(void)
 	
 	if (game_over) {
 		showGameOver(xres, yres);
-	}	
+	}
+	if (feature_mode == 1) {
+		FeatureBorder(xres, yres);
+	}
 }
 
 
