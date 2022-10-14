@@ -131,17 +131,19 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[4] = {"./x.png", "./explosion.png", "./bship.png",
-	"./portraitPlaceholder.png"};
+Image img[5] = {"./x.png", "./explosion.png", "./bship.png",
+	"./portraitPlaceholder.png", "./GameOver.png"};
 
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bshipTexture;
 GLuint portraitTexture;
+GLuint gameoverTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
+Image *gameoverImage = NULL;
 
 
 // -----------SHIP STRUCTURE------------------------------------------
@@ -414,12 +416,14 @@ void init_opengl(void)
 	explosionImage  = &img[1];
 	bshipImage      = &img[2];
 	portraitImage 	= &img[3];
+	gameoverImage 	= &img[4];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
 	glGenTextures(1, &bshipTexture);
 	glGenTextures(1, &portraitTexture);
+	glGenTextures(1, &gameoverTexture);
 	//
 	//load textures into memory
 	//-------------------------------
@@ -458,6 +462,15 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
+	//-------------------------------
+	//game over
+	w = gameoverImage->width;
+	h = gameoverImage->height;
+	glBindTexture(GL_TEXTURE_2D, gameoverTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, gameoverImage->data);
 	//-------------------------------
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
@@ -578,7 +591,7 @@ extern void show_cecilio();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
 extern void showIntro(int xres, int yres);
-extern void showGameOver(int xres, int yres);
+extern void showGameOver(int xres, int yres, GLuint gameoverTexture);
 
 // ------INPUT--------------------------------------------------------
 
@@ -1133,7 +1146,7 @@ void render(void)
 	}
 	
 	if (game_over) {
-		showGameOver(xres, yres);
+		showGameOver(xres, yres,gameoverTexture);
 	}	
 }
 

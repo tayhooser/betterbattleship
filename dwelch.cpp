@@ -23,65 +23,41 @@ int show_dwelch()
 
 }
 
-void showGameOver(int xres, int yres)
+void showGameOver(int xres, int yres, GLuint gameoverTexture)
 {
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
 	int w = 350;
 	int h = 220;
+
+	//dim background
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        glColor4f(0, 0, 0, 0.4f);
+        glBegin(GL_QUADS);
+                glVertex2f(0, yres);
+                glVertex2f(xres, yres);
+                glVertex2f(xres, 0);
+                glVertex2f(0, 0);
+                glEnd();
+        glDisable(GL_BLEND);
+
+	//starting rectangle
+	glBindTexture(GL_TEXTURE_2D, gameoverTexture);
 	glColor3f(0, 0, 0);
 	glBegin(GL_QUADS);
-		glVertex2f(xcent-w, ycent-h);
-		glVertex2f(xcent-w, ycent+h);
-		glVertex2f(xcent+w, ycent+h);
-		glVertex2f(xcent+w, ycent-h);
+		glTexCoord2f(0.0f, 1.0f);  glVertex2f(0,     0);
+		glTexCoord2f(0.0f, 0.25f); glVertex2f(0,     yres);
+		glTexCoord2f(1.0f, 0.25f); glVertex2f(xres,  yres);
+		glTexCoord2f(1.0f, 1.0f);  glVertex2f(xres,  0);
 	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	r.left = xcent;
 	r.bot  = ycent + 80;
 	r.center = 50;
-	ggprint16(&r, 50, 0xffffffff, "Game Over");
+
+
+
 }
-
-/*
-void over(){
-	Rect r;
-	ggprint16(&r, 50, 0xffffffff, "Game Over ");
-}
-extern class Show_Over show_over;
-
-Show_Over::~Show_Over() { delete [] data; }
-
-Show_Over::Show_Over(const char *fname) {
-	if (fname[0] == '\0')
-		return;
-	char name[40];
-	strcpy(name, fname);
-	int slen = strlen(name);
-	name[slen-4] = '\0';
-	char ppmname[80];
-	sprintf(ts, "convert %s %s" fname, ppmname);
-	system(ts);
-	FILE *fpi = fopen(ppmname, "r");
-	if (fpi) { 
-		char line[200];
-		fgets(line, 200, fpi);
-		fgets(line, 200, fpi);
-
-		while (line[0] == '#' || strlen(line) < 2)
-			fgets(line, 200, fpi);
-		sscanf(line, "%i %i", &width, &height);
-		fgets(line, 200, fpi);
-
-		int n = width * height * 3;
-		data = new unsigned char[n];
-		for (int i=0; i<n; i++)
-			data[i] = fgetc(fpi);
-		fclose(fpi);
-	}else {
-		printf("ERROR opening image: %s\n" ppmname);
-		exit(0);
-	}
-	unlink(ppmname);
-}
-*/
