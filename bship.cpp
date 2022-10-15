@@ -1083,8 +1083,11 @@ void render(void)
 			glBindTexture(GL_TEXTURE_2D, 0);
 			//if (grid2[i][j].status==1)
 			//	glBindTexture(GL_TEXTURE_2D, xTexture);
-			if (grid2[i][j].status==2)
+			if (grid2[i][j].status==2) {
 				glBindTexture(GL_TEXTURE_2D, explosionTexture);
+				if (feature_mode == 1)
+					ExplosionAnimation(cent[0],cent[1], qsize, 0);
+			}
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex2i(cent[0]-qsize,cent[1]-qsize);
@@ -1125,6 +1128,7 @@ void render(void)
 	switch(gamemode) {
 		case MODE_READY:
 			ggprint16(&r, 0, 0x00ffffff, "Press F2 to place ships!");
+			ggprint16(&r, 0, 0x00ffffff, "Press M to toggle missile type!");
 			break;
 		case MODE_PLACE_SHIPS:
 			ggprint16(&r, 0, 0x00ffffff,

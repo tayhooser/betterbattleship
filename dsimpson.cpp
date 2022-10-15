@@ -4,6 +4,50 @@
 #include <stdio.h>
 #include <GL/glx.h>
 #include "fonts.h"
+
+const int MAX_PARTICLES = 1000;
+int prev_x = 0;
+int prev_y = 0;
+//some structures
+
+class Box {
+public:
+    float w;
+        float dir;
+    float vel[2];
+       	float pos[2];
+	Box() {
+        w = 20.0f;
+        dir = 25.0f;
+        pos[0] = 600/3.0f;
+        pos[1] = 400/1.5f;
+        vel[0] = vel[1] = 0.0; 
+    }
+    Box(float wid, float d, float p0, float p1) {
+        w = wid;
+        dir = d;
+        pos[0] = p0;
+        pos[1] = p1;
+        vel[0] = vel[1] = 0.0f;
+    }
+
+
+} particle(2.0, 0.0, 600/2.0, 400/4.0*3.0);
+
+Box particles[MAX_PARTICLES];
+int n = 0;
+void ExplosionAnimation(int x, int y, int width, int m);
+void make_particle(int x, int y, int width)
+{
+    if (n>=MAX_PARTICLES)
+        return;
+    particles[n].w = 3.0;
+    particles[n].pos[0] = x;
+    particles[n].pos[1] = y;
+    particles[n].vel[0]=particles[n].vel[1] = 0.0;
+    ++n;
+//	ExplosionAnimation(x, y, width, n);
+}
 unsigned int manage_state(unsigned int s)
 {
 	s=s^1;
@@ -83,4 +127,108 @@ void FeatureBorder(int xres, int yres)
 	
 	
 	
+}
+void explosion_physics(int x, int y, int width)
+{
+	int k = 0;
+	for (int i = 0; i<n; i++) {
+		k++;
+		if (k == 1) {
+			particles[i].vel[1] += 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 2) {
+			particles[i].vel[0] += 0.01;
+			particles[i].vel[1] += 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 3) {
+			particles[i].vel[0] += 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 4) {
+			particles[i].vel[0] += 0.01;
+			particles[i].vel[1] -= 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 5) {
+			particles[i].vel[1] -= 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 6) {
+			particles[i].vel[0] -= 0.01;
+			particles[i].vel[1] -= 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 7) {
+			particles[i].vel[0] -= 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+		}
+		if (k == 8) {
+			particles[i].vel[0] -= 0.01;
+			particles[i].vel[1] += 0.01;
+       		particles[i].pos[0] += particles[i].vel[0];
+       		particles[i].pos[1] += particles[i].vel[1];
+			k=0;
+		}
+       	//
+       	//check for collision
+        
+       	if (particles[i].pos[0] >= (x + width) &&
+            particles[i].pos[1] >= (y + width)) { 
+            particles[i]= particles[n - 1];
+            --n;
+        }
+		if (particles[i].pos[0] <= (x - width) &&
+            particles[i].pos[1] <= (y - width)) { 
+            particles[i]= particles[n - 1];
+            --n;
+        }
+		if (particles[i].pos[0] >= (x + width) &&
+            particles[i].pos[1] <= (y - width)) { 
+            particles[i]= particles[n - 1];
+            --n;
+        }
+		if (particles[i].pos[0] <= (x - width) &&
+            particles[i].pos[1] >= (y + width)) { 
+            particles[i]= particles[n - 1];
+            --n;
+        }
+		if (i ==n)
+			return;
+	}
+}
+void ExplosionAnimation(int x, int y, int width, int m)
+{
+	if (x != prev_x && y != prev_y) {
+		for (int i = 0; i < 20; i++)
+			make_particle(x, y, width);
+		//draw particles
+    	for (int i = 0; i<n; i++) {
+	    	glPushMatrix();
+	    	if (i % 2 == 0)
+       	   		glColor3ub(255, 0, 0);
+       		else
+       	    	glColor3ub(255, 215, 0);
+        	glTranslatef(particles[i].pos[0], particles[i].pos[1], 0.0f);
+        	glBegin(GL_QUADS);
+           		glVertex2f(-particles[i].w, -particles[i].w);
+            	glVertex2f(-particles[i].w,  particles[i].w);
+            	glVertex2f( particles[i].w,  particles[i].w);
+            	glVertex2f( particles[i].w, -particles[i].w);
+       		glEnd();
+        	glPopMatrix();
+    	}
+	}
+	glColor4f(1.0f, 0.8f, 0.5f, 0.6f);
+	explosion_physics(x, y, width);
+	prev_x = x;
+	prev_y = y;
 }
