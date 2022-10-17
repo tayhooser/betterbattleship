@@ -179,6 +179,7 @@ bool credits = false; //off on startup
 bool intro = true; // plays on startup
 unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
+int jason_feature = 0; // off on start up
 unsigned int game_over = 0; //off on startup
 
 
@@ -627,7 +628,8 @@ void check_keys(XEvent *e)
 			show_taylor();
 			break;
 		case XK_a:
-			show_jason();
+		//	show_jason(); <--- prints jason in terminal
+			jason_feature = toggle(jason_feature);
 			break;
 		case XK_c:
 			credits = !credits;
@@ -636,7 +638,7 @@ void check_keys(XEvent *e)
 			pause_screen = manage_state(pause_screen);
 			break;
 		case XK_F1:
-			help = toggle_help(help);
+			help = toggle(help);
 			break;
 		case XK_i:
 			intro = !intro;
@@ -1119,7 +1121,13 @@ void render(void)
 		ggprint16(&r, 0, button[i].text_color, button[i].text);
 
 	}
+
+	if (jason_feature) {
 	
+		feature_border(xres,yres);
+		game_log(xres,yres);
+	}
+
 	if (pause_screen != 0) {
         PauseScreen(xres, yres);
 	}
