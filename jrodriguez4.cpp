@@ -1,24 +1,146 @@
-
 // Individual source file
 // Author: Jason Rodriguez
-// Update Date : October 4 2022
-#include <stdio.h>
-#include <GL/glx.h>
-#include "fonts.h"
+// Update Date : October 17 2022
 
-int  show_jason() {
+#include <iostream> // <--- output/input functions
+#include <string>	// <--- string functions
+#include <stdio.h>	// <--- output/input functions 
+#include <GL/glx.h>	// <--- OpenGl functions and utilities
+#include "fonts.h"	
+#include "jrodriguez4.h"
 
-	printf("Jason\n");
-	return 0;
+
+//****************************************************
+//---------- Constructors and Destructors -----------*
+//****************************************************
+
+// Constructor creates an empty queue of a specified size
+template <class T>
+Queue<T>::Queue(int s)
+{
+	queueArray = new T[s];
+	queueSize = s;
+	front = -1;
+	rear = -1;
+	queueItems = 0;
 }
 
+// Copy Constructor
+template <class T>
+Queue<T>::Queue(const Queue & obj)
+{
+	// Allocate the queue array
+	queueArray = new T[obj.queueSize];
+
+	// Copy object attibutes
+	queueSize = obj.queueSize;
+	front = obj.front;
+	rear = obj.rear;
+	queueItems = obj.queueItems;
+
+	// Copy the other object's queue array
+	for (int i = 0; i < obj.queueSize; i++) {
+		queueArray[i] = obj.queueArray[i];
+	}
+}
+
+// Destructor
+template <class T>
+Queue<T>::~Queue()
+{
+	delete [] queueArray;
+}
+
+//************************************
+//---------- INT FUNCTIONS ----------*
+//************************************
+
+// allows for toggling of int variables on/off
 unsigned int toggle(unsigned int toggle) {
 
 	toggle = toggle ^ 1;
 	return toggle;
 }
 
-void game_log(int xres, int yres) {
+//*************************************
+//---------- BOOL FUNCTIONS ----------*
+//*************************************
+
+// Checks if queue is Empty
+template <class T>
+bool Queue<T>::isEmpty() const
+{
+	bool status;
+
+	if (queueItems)
+		status = false;
+	else
+		status = true;
+	
+	return status;
+}
+
+// Check if queue is Full
+template <class T>
+bool Queue<T>::isFull() const
+{
+	bool status;
+
+	if (queueItems < queueSize)
+		status = false;
+	else
+		status = true;
+
+	return status;
+
+}
+
+//*************************************
+//---------- VOID FUNCTIONS ----------*
+//*************************************
+
+// Clear the queue
+template <class T>
+void Queue<T>::clear()
+{
+	front = queueSize - 1;
+	rear = queueSize - 1;
+	queueItems = 0;
+}
+
+// Enqueue function to insert a value at rear
+template <class T>
+void Queue<T>::enqueue(T item)
+{
+	if (isFull()) {
+		std::cout << "Queue is full" << std::endl;
+	}
+	else {
+		rear = (rear + 1) % queueSize;
+		// Insert Item
+		queueArray[rear] = item;
+		//Update count
+		queueItems++;
+	}
+}
+
+// Dequeue function to remove value at front of queue
+template <class T>
+void Queue<T>::dequeue(T item)
+{
+	if (isEmpty())
+		std::cout << "Queue is empty" << std::endl;
+	else {
+		// Move front
+		front = (front + 1 ) % queueSize;
+		// Get front item
+		item = queueArray[front];
+		//Update items
+		queueItems--;
+	}
+}
+// Build the log window frame
+void logFrame(int xres, int yres) {
 
 	int xcent = xres / 2;		
 	int ycent = yres / 2;		
@@ -33,6 +155,7 @@ void game_log(int xres, int yres) {
     glEnd();
 }
 
+// Border to show feature mode is on
 void feature_border(int xres, int yres) {
 
 	// Triangle strip border
@@ -62,6 +185,7 @@ void feature_border(int xres, int yres) {
 
 }
 
+// Help screen 
 void show_help( int xres, int yres) {
 
     Rect r;

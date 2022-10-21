@@ -7,9 +7,9 @@
 //This program needs further refactoring.
 //Maybe a global class.
 
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -143,6 +143,12 @@ Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
 
+// -----------LOG STRUCTURE------------------------------------------
+
+#define MAXQUEUE
+
+char Event;
+Queue<char> logQueue(MAXQUEUE);
 
 // -----------SHIP STRUCTURE------------------------------------------
 
@@ -1125,7 +1131,7 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
-		game_log(xres,yres);
+		logFrame(xres,yres);
 	}
 
 	if (pause_screen != 0) {
