@@ -701,6 +701,8 @@ void mouse_click(int ibutton, int action, int x, int y)
 							if (grid1[i][j].status) {
 								int s = grid1[i][j].shipno;
 								grid2[i][j].status = 2;
+								if (feature_mode)
+									make_particle(cent[0], cent[1], qsize);
 								{
 									//is this ship sunk?
 									if (check_for_sink(s)) {
@@ -915,7 +917,9 @@ void check_mouse(XEvent *e)
 
 void physics()
 {
-
+	if (feature_mode == 1) {
+		explosion_physics();
+	}
 }
 
 int check_connecting_quad(int i, int j, int gridno)
@@ -1049,8 +1053,8 @@ void render(void)
 				glBindTexture(GL_TEXTURE_2D, 0);
 				if (grid1[i][j].status==1)
 					glBindTexture(GL_TEXTURE_2D, xTexture);
-				//if (grid1[i][j].status==2)
-				//	glBindTexture(GL_TEXTURE_2D, explosionTexture);
+				//if (grid1[i][j].status==2) {
+					//glBindTexture(GL_TEXTURE_2D, explosionTexture);
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0f, 0.0f);
 					glVertex2i(cent[0]-qsize,cent[1]-qsize);
@@ -1083,8 +1087,11 @@ void render(void)
 			glBindTexture(GL_TEXTURE_2D, 0);
 			//if (grid2[i][j].status==1)
 			//	glBindTexture(GL_TEXTURE_2D, xTexture);
-			if (grid2[i][j].status==2)
+			if (grid2[i][j].status==2) {
 				glBindTexture(GL_TEXTURE_2D, explosionTexture);
+				if (feature_mode == 1)
+						ExplosionAnimation(cent[0],cent[1], qsize, 0);
+			}
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex2i(cent[0]-qsize,cent[1]-qsize);
@@ -1137,6 +1144,10 @@ void render(void)
 			ggprint16(&r, 0, 0x00ffffff, "Game over!");
 			break;
 	}
+	r.left = 4;
+	r.bot  = 180;
+	r.center = 0;
+	ggprint16(&r, 20, 0x00ffff00, "Press M to toggle missile type!");
 	r.left = 4;
 	r.bot  = 160;
 	r.center = 0;
