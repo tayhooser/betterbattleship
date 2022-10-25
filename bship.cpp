@@ -582,6 +582,7 @@ extern void showCredits(int xres, int yres, GLuint portraitTexture);
 extern void showIntro(int xres, int yres);
 extern void showGameOver(int xres, int yres);
 extern void showTeir(int xres, int yres, GLuint xTexture);
+extern void FeatureBox(int xres, int yres);
 
 // ------INPUT--------------------------------------------------------
 
@@ -1147,6 +1148,7 @@ void render(void)
 		showGameOver(xres, yres);
 	}	
 	if (dee_feature) {
+		FeatureBox(xres,yres);
 		showTeir(xres, yres, xTexture);
 	}	
 }
