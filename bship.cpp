@@ -123,17 +123,22 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[4] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png"};
+
+Image img[5] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png"};
+
 //
 //
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bshipTexture;
 GLuint portraitTexture;
+GLuint capitalTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
+Image *capitalImage = NULL;
+
 //
 #define MAXSHIPS 4
 typedef struct t_ship {
@@ -146,8 +151,10 @@ Ship ship[MAXSHIPS];
 int nships=0;
 int nshipssunk=0;
 int nbombs=0;
+
 int missileType = 0;
 int feature_mode = 0;
+
 //
 //modes:
 //0 game is at rest
@@ -395,12 +402,14 @@ void init_opengl(void)
 	explosionImage  = &img[1];
 	bshipImage      = &img[2];
 	portraitImage 	= &img[3];
+	capitalImage 	= &img[4];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
 	glGenTextures(1, &bshipTexture);
 	glGenTextures(1, &portraitTexture);
+	glGenTextures(1, &capitalTexture);
 	//
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -440,6 +449,17 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
+
+	//portrait
+	w = capitalImage->width;
+	h = capitalImage->height;
+	glBindTexture(GL_TEXTURE_2D, capitalTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
+	//-------------------------------------------------------------------------
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
@@ -554,7 +574,7 @@ extern void show_taylor();
 extern void show_cecilio();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
-extern void showIntro(int xres, int yres);
+extern void showIntro(int xres, int yres, GLuint capitalTexture);
 extern void showGameOver(int xres, int yres);
 
 void check_keys(XEvent *e)
@@ -1211,7 +1231,7 @@ void render(void)
 	}
 	
 	if (intro) {
-		showIntro(xres, yres);
+		showIntro(xres, yres, capitalTexture);
 	}
 	
 	if (game_over) {
