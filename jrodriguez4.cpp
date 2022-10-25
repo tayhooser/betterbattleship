@@ -6,6 +6,7 @@
 #include <string>	// <--- string functions
 #include <stdio.h>	// <--- output/input functions 
 #include <GL/glx.h>	// <--- OpenGl functions and utilities
+#include <string>
 #include "fonts.h"	
 #include "jrodriguez4.h"
 

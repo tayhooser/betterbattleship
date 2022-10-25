@@ -147,8 +147,8 @@ Image *portraitImage = NULL;
 
 #define MAXQUEUE
 
-char Event;
-Queue<char> logQueue(MAXQUEUE);
+std::string Event;
+Queue<std::string> logQueue(MAXQUEUE);
 
 // -----------SHIP STRUCTURE------------------------------------------
 
