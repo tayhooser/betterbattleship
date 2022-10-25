@@ -5,8 +5,9 @@
 #include <iostream> // <--- output/input functions
 #include <string>	// <--- string functions
 #include <stdio.h>	// <--- output/input functions 
+#include <stdlib.h>	
 #include <GL/glx.h>	// <--- OpenGl functions and utilities
-#include <string>
+#include <string>	// <--- String class
 #include "fonts.h"	
 #include "jrodriguez4.h"
 
@@ -140,20 +141,42 @@ void Queue<T>::dequeue(T item)
 		queueItems--;
 	}
 }
+// Print log Queue
+//template <class T>
+void printText(Queue<std::string> queueName, int xres, int yres) { 
+
+}
+// Log event
+template <class T>
+void logText(Queue<std::string> queueName, std::string event) {
+	
+    
+
+}
 // Build the log window frame
 void logFrame(int xres, int yres) {
 
+    	Rect r;
 	int xcent = xres / 2;		
 	int ycent = yres / 2;		
-	int w = 90;
-	int h = 190;
-    glColor3f(0.6, 0.6, 0.6);
+	int w = xres/12;
+	int h = xres/6;
+	glEnable(GL_BLEND);
+    	glColor3f(0.6, 0.6, 0.6);
+    	glColor4f(0.6, 0.6, 0.6, 0.7);
 	glBegin(GL_QUADS);
 		glVertex2f(xcent-w, ycent-h);
-        glVertex2f(xcent-w, ycent+h);
-        glVertex2f(xcent+w, ycent+h);
-        glVertex2f(xcent+w, ycent-h);
-    glEnd();
+        	glVertex2f(xcent-w, ycent+h);
+        	glVertex2f(xcent+w, ycent+h);
+        	glVertex2f(xcent+w, ycent-h);
+    	glEnd();
+	glDisable(GL_BLEND);
+    	r.left = xres/2;
+    	r.bot = yres/1.45;
+    	r.center = 50;
+        
+    	ggprint16(&r, 50, 0xffffffff, " ---- Game Log ----");
+
 }
 
 // Border to show feature mode is on

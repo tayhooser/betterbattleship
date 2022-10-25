@@ -35,7 +35,10 @@ class Queue {
 //*************************************
 //---------- VOID FUNCTIONS ----------*
 //*************************************
-
+//template <class T>
+void printText(Queue<std::string> queueName,int xres,int yres);
+template <class T>
+void logText(Queue<std::string> queueName,std::string event);
 void logFrame(int xres, int yres);  // Build the frame for the log window
 void feature_border(int xres, int yres); // enables feature mode aka log window
 void show_help(int xres, int yres); // shows help window

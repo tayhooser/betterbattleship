@@ -1131,6 +1131,10 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
+		/* Not yet working
+		logText(logQueue,Event);
+		printText(logQueue,xres,yres); 
+		*/
 		logFrame(xres,yres);
 	}
 
