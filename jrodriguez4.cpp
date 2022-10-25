@@ -226,15 +226,15 @@ void show_help( int xres, int yres) {
     glEnd();
     
     r.left = xcent;
-    r.bot = ycent + 120;
+    r.bot = ycent + 140;
     r.center = 50;
         
     ggprint16(&r, 50, 0xffffffff, " --- HELP ---");
-    ggprint16(&r, 25, 0xffffffff, " press 's' for Danny");
-    ggprint16(&r, 25, 0xffffffff, " press 'g' for Cecilio");
-    ggprint16(&r, 25, 0xffffffff, " press 'd' for Delaney");
-    ggprint16(&r, 25, 0xffffffff, " press 't' for Taylor");
-    ggprint16(&r, 25, 0xffffffff, " press 'a' for Jason");
+    ggprint16(&r, 25, 0xffffffff, " cycle 'F2' or press 'F' for Danny's feature");
+    ggprint16(&r, 25, 0xffffffff, " press ??? for Cecilio's feature");
+    ggprint16(&r, 25, 0xffffffff, " press ??? for Delaney's feature");
+    ggprint16(&r, 25, 0xffffffff, " cycle 'F2' for Taylor's feature");
+    ggprint16(&r, 25, 0xffffffff, " press ??? for Jason's feature");
     
     ggprint16(&r, 25, 0xffffffff, "");
     
