@@ -6,10 +6,10 @@
 //
 //This program needs further refactoring.
 //Maybe a global class.
-//
-//
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -134,8 +134,23 @@ Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
-//
-#define MAXSHIPS 4
+Image *capitalImage = NULL;
+
+// -----------LOG STRUCTURE------------------------------------------
+
+#define MAXQUEUE
+
+std::string Event;
+Queue<std::string> logQueue(MAXQUEUE);
+
+
+// -----------SHIP STRUCTURE------------------------------------------
+
+#define MAXSHIPS 10
+
+// original ship structure, updated and moved to thooser.h
+/*
+
 typedef struct t_ship {
 	int status;
 	int pos[16][2];
@@ -1267,6 +1282,15 @@ void render(void)
 
 	}
 	
+
+		feature_border(xres,yres);
+		/* Not yet working
+		logText(logQueue,Event);
+		printText(logQueue,xres,yres); 
+		*/
+		logFrame(xres,yres);
+	}
+
 	if (pause_screen != 0) {
         PauseScreen(xres, yres);
 	}
