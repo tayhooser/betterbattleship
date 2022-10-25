@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <GL/glx.h>
 #include "fonts.h"
-
 const int MAX_PARTICLES = 1000;
 int x_value = 0;
 int y_value = 0;
@@ -186,8 +185,15 @@ void explosion_physics()
 		}
        	//
        	//check for collision
-        
-       	if (particles[i].pos[0] >= (particles[i].pos[0] + width) &&
+        //int d[2];
+        //d[0] = particles[i].pos[0] - x_value;
+        //d[1] = particles[i].pos[1] - y_value;
+        //float dist = (d[0]*d[0] + d[1]*d[1]);
+        //if (dist > (width*width)) { 
+        //particles[i]= particles[n - 1];
+        //--n;
+        //}
+               	if (particles[i].pos[0] >= (particles[i].pos[0] + width) &&
             particles[i].pos[1] >= (particles[i].pos[1] + width)) { 
             particles[i]= particles[n - 1];
             --n;
