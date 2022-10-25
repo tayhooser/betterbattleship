@@ -6,8 +6,11 @@
 #include "fonts.h"
 
 const int MAX_PARTICLES = 1000;
-int prev_x = 0;
-int prev_y = 0;
+int x_value = 0;
+int y_value = 0;
+int width = 0;
+int maxGrid = 16;
+int goneAlready[16][2];
 //some structures
 
 class Box {
@@ -37,15 +40,18 @@ public:
 Box particles[MAX_PARTICLES];
 int n = 0;
 void ExplosionAnimation(int x, int y, int width, int m);
-void make_particle(int x, int y, int width)
+void make_particle(int x, int y, int wid)
 {
-    if (n>=MAX_PARTICLES)
-        return;
-    particles[n].w = 3.0;
-    particles[n].pos[0] = x;
-    particles[n].pos[1] = y;
-    particles[n].vel[0]=particles[n].vel[1] = 0.0;
-    ++n;
+	for (int i = 0; i < 20; i++) {
+		
+		if (n>=MAX_PARTICLES)
+			return;
+		particles[n].w = 3.0;
+		particles[n].pos[0] = x;
+		particles[n].pos[1] = y;
+		particles[n].vel[0]=particles[n].vel[1] = 0.0;
+		++n;
+	}
 //	ExplosionAnimation(x, y, width, n);
 }
 unsigned int manage_state(unsigned int s)
@@ -128,8 +134,8 @@ void FeatureBorder(int xres, int yres)
 	
 	
 }
-void explosion_physics(int x, int y, int width)
-{
+void explosion_physics()
+{ 
 	int k = 0;
 	for (int i = 0; i<n; i++) {
 		k++;
@@ -181,54 +187,49 @@ void explosion_physics(int x, int y, int width)
        	//
        	//check for collision
         
-       	if (particles[i].pos[0] >= (x + width) &&
-            particles[i].pos[1] >= (y + width)) { 
+       	if (particles[i].pos[0] >= (particles[i].pos[0] + width) &&
+            particles[i].pos[1] >= (particles[i].pos[1] + width)) { 
             particles[i]= particles[n - 1];
             --n;
         }
-		if (particles[i].pos[0] <= (x - width) &&
-            particles[i].pos[1] <= (y - width)) { 
+		if (particles[i].pos[0] <= (particles[i].pos[0] - width) &&
+            particles[i].pos[1] <= (particles[i].pos[1] - width)) { 
             particles[i]= particles[n - 1];
             --n;
         }
-		if (particles[i].pos[0] >= (x + width) &&
-            particles[i].pos[1] <= (y - width)) { 
+		if (particles[i].pos[0] >= (x_value + width) &&
+            particles[i].pos[1] <= (y_value - width)) { 
             particles[i]= particles[n - 1];
             --n;
         }
-		if (particles[i].pos[0] <= (x - width) &&
-            particles[i].pos[1] >= (y + width)) { 
-            particles[i]= particles[n - 1];
-            --n;
+		if (particles[i].pos[0] <= (x_value - width) &&
+            particles[i].pos[1] >= (y_value + width)) { 
+           particles[i]= particles[n - 1];
+           --n;
         }
-		if (i ==n)
-			return;
 	}
 }
-void ExplosionAnimation(int x, int y, int width, int m)
+
+void ExplosionAnimation(int xx, int yy, int wid, int m)
 {
-	if (x != prev_x && y != prev_y) {
-		for (int i = 0; i < 20; i++)
-			make_particle(x, y, width);
+	x_value = xx;
+	y_value = yy;
+	width = wid;
 		//draw particles
-    	for (int i = 0; i<n; i++) {
-	    	glPushMatrix();
-	    	if (i % 2 == 0)
-       	   		glColor3ub(255, 0, 0);
-       		else
-       	    	glColor3ub(255, 215, 0);
-        	glTranslatef(particles[i].pos[0], particles[i].pos[1], 0.0f);
-        	glBegin(GL_QUADS);
-           		glVertex2f(-particles[i].w, -particles[i].w);
-            	glVertex2f(-particles[i].w,  particles[i].w);
-            	glVertex2f( particles[i].w,  particles[i].w);
-            	glVertex2f( particles[i].w, -particles[i].w);
-       		glEnd();
-        	glPopMatrix();
-    	}
-	}
+    for (int i = 0; i<n; i++) {
+	    glPushMatrix();
+	    if (i % 2 == 0)
+       	   	glColor3ub(255, 0, 0);
+       	else
+       	    glColor3ub(255, 215, 0);
+        glTranslatef(particles[i].pos[0], particles[i].pos[1], 0.0f);
+        glBegin(GL_QUADS);
+           	glVertex2f(-particles[i].w, -particles[i].w);
+            glVertex2f(-particles[i].w,  particles[i].w);
+            glVertex2f( particles[i].w,  particles[i].w);
+            glVertex2f( particles[i].w, -particles[i].w);
+       	glEnd();
+        glPopMatrix();
+    }
 	glColor4f(1.0f, 0.8f, 0.5f, 0.6f);
-	explosion_physics(x, y, width);
-	prev_x = x;
-	prev_y = y;
 }
