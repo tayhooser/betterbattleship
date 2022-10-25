@@ -629,10 +629,12 @@ void check_keys(XEvent *e)
 		case XK_F2:
 			gamemode++;
 			taylorFeature = false;
+			feature_mode = 0;
 			if (gamemode == MODE_PLACE_SHIPS){
 				taylorFeature = true;
 			}
 			if (gamemode == MODE_FIND_SHIPS) {
+				feature_mode = 1;
 				nshipssunk = 0;
 				nbombs = 10;
 			}
