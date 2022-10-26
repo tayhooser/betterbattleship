@@ -202,7 +202,9 @@ unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
 int jason_feature = 0; // off on start up
 unsigned int game_over = 0; //off on startup
+bool dee_feature = false; //off on startup
 bool taylorFeature = false; //off on startup, turns on during ship place
+
 
 
 class X11_wrapper {
@@ -605,6 +607,11 @@ extern int show_danny();
 //extern void show_taylor();
 extern void show_cecilio();
 
+extern void showCredits(int xres, int yres, GLuint portraitTexture);
+extern void showIntro(int xres, int yres);
+extern void showGameOver(int xres, int yres);
+extern void showTeir(int xres, int yres, GLuint xTexture);
+extern void FeatureBox(int xres, int yres);
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
 
 extern void showGameOver(int xres, int yres);
@@ -657,7 +664,8 @@ void check_keys(XEvent *e)
 			show_cecilio();
 			break;
 		case XK_d:
-			show_dwelch();
+			//show_dwelch(); <--- prints delaney to terminal 
+			dee_feature = !dee_feature;
 			break;
 		case XK_t:
 			show_taylor();
@@ -1283,11 +1291,15 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
+dwelch
+		game_log(xres,yres);
+
 		/* Not yet working
 		logText(logQueue,Event);
 		printText(logQueue,xres,yres); 
 		*/
 		logFrame(xres,yres);
+
 	}
 
 	if (pause_screen != 0) {
@@ -1309,10 +1321,15 @@ void render(void)
 	if (taylorFeature){
 		taylorFeatureOverlay(xres, yres);
 	}	
+	if (dee_feature) {
+		FeatureBox(xres,yres);
+		showTeir(xres, yres, xTexture);
+	}	
 
 	if (feature_mode == 1) {
 		FeatureBorder(xres, yres);
 	}
+
 
 }
 

@@ -27,6 +27,8 @@ Queue<T>::Queue(int s)
 	queueItems = 0;
 }
 
+
+
 // Copy Constructor
 template <class T>
 Queue<T>::Queue(const Queue & obj)
@@ -58,11 +60,29 @@ Queue<T>::~Queue()
 //************************************
 
 // allows for toggling of int variables on/off
+
 unsigned int toggle(unsigned int toggle) {
 
 	toggle = toggle ^ 1;
 	return toggle;
 }
+
+
+void game_log(int xres, int yres) {
+
+	int xcent = xres / 2;		
+	int ycent = yres / 2;		
+	int w = 90;
+	int h = 190;
+    glColor3f(0.6, 0.6, 0.6);
+	glBegin(GL_QUADS);
+		glVertex2f(xcent-w, ycent-h);
+        glVertex2f(xcent-w, ycent+h);
+        glVertex2f(xcent+w, ycent+h);
+        glVertex2f(xcent+w, ycent-h);
+    glEnd();
+}
+
 
 //*************************************
 //---------- BOOL FUNCTIONS ----------*
@@ -209,7 +229,6 @@ void feature_border(int xres, int yres) {
 
 }
 
-// Help screen 
 void show_help( int xres, int yres) {
 
     Rect r;
@@ -226,15 +245,6 @@ void show_help( int xres, int yres) {
     glEnd();
     
     r.left = xcent;
-    r.bot = ycent + 140;
-    r.center = 50;
-        
-    ggprint16(&r, 50, 0xffffffff, " --- HELP ---");
-    ggprint16(&r, 25, 0xffffffff, " cycle 'F2' or press 'F' for Danny's feature");
-    ggprint16(&r, 25, 0xffffffff, " press ??? for Cecilio's feature");
-    ggprint16(&r, 25, 0xffffffff, " press ??? for Delaney's feature");
-    ggprint16(&r, 25, 0xffffffff, " cycle 'F2' for Taylor's feature");
-    ggprint16(&r, 25, 0xffffffff, " press ??? for Jason's feature");
     
     ggprint16(&r, 25, 0xffffffff, "");
     
