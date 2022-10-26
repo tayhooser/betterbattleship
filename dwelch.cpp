@@ -140,40 +140,48 @@ void showTeir(int xres, int yres, GLuint xTexture)
 		//
 	//	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	//	glEnable(GL_BLEND);
-		for (int i=0; i<5; i++) {
-			for (int j=0; j<5; j++) {
+		for (int i=0; i<GridDim;i++) {
+			for (int j=0; j<GridDim; j++) {
 				get_grid_center(1,i,j,xres,yres,cent);
 				//glColor3f(0.5f, 0.1f, 0.1f);
 				glColor4f(20.0f, 51.0f, 13.3f, 111.5f);
 				//if (gridleft1[i][j].over) {
 				if (1) {
-					glColor3f(1.0f, 1.0f, 0.0f);
+				    glColor3f(1.0f, 1.0f, 0.0f);
 				}
 				if (gridleft2[i][j].over) {
-					glColor3f(1.0f, 1.0f, 0.0f);
+				    glColor3f(1.0f, 1.0f, 0.0f);
 				}
 				if (gridleft3[i][j].over) {
-					glColor3f(1.0f, 1.0f, 0.0f);
+				    glColor3f(1.0f, 1.0f, 0.0f);
 				}
 				glBindTexture(GL_TEXTURE_2D, 0);
 			
 				//if (gridleft1[i][j].status==1)
 				if (1)
-					glBindTexture(GL_TEXTURE_2D, xTexture);
+				    glBindTexture(GL_TEXTURE_2D, xTexture);
 				if (gridleft2[i][j].status==1)
-					glBindTexture(GL_TEXTURE_2D, xTexture);
+				    glBindTexture(GL_TEXTURE_2D, xTexture);
 				if (gridleft3[i][j].status==1)
-					glBindTexture(GL_TEXTURE_2D, xTexture);
+				    glBindTexture(GL_TEXTURE_2D, xTexture);
 				glBegin(GL_QUADS);
-					
+				
+				glTexCoord2f(0.0f, 0.0f);
 				glVertex2f(cent[0]-w+i, cent[1]-h+j);
-				glVertex2f(cent[0]-w, cent[1]+h);
-				glVertex2f(cent[0]+w, cent[1]+h);
-				glVertex2f(cent[0]+w, cent[1]-h);
+				
+				glTexCoord2f(0.0f, 0.2f);
+				glVertex2f(cent[0]-w+i, cent[1]+h+j);
+				
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(cent[0]+w+i, cent[1]+h+j);
+				
+				glTexCoord2f(1.0f, 0.2f);
+				glVertex2f(cent[0]+w+i, cent[1]-h+j);
+				
 				glEnd();
+				
 				glBindTexture(GL_TEXTURE_2D, 0);
 				
-				/*
 				//if (grid1[i][j].status==2)
 				//	glBindTexture(GL_TEXTURE_2D, explosionTexture);
 				//grid left 1
@@ -187,6 +195,7 @@ void showTeir(int xres, int yres, GLuint xTexture)
 					glTexCoord2f(1.0f, 0.2f);
 					glVertex2i(cent[0]+qsz,cent[1]-qsz);
 				glEnd();
+				/*
 				//grid left 2
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0f, 0.4f);

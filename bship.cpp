@@ -608,6 +608,7 @@ extern int show_danny();
 extern void show_cecilio();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
+extern void game_log(int xres, int yres);
 extern void showIntro(int xres, int yres);
 extern void showGameOver(int xres, int yres);
 extern void showTeir(int xres, int yres, GLuint xTexture);
@@ -1291,42 +1292,41 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
-		//game_log(xres,yres);
-
 		/* Not yet working
 		logText(logQueue,Event);
 		printText(logQueue,xres,yres); 
 		*/
+		game_log(xres,yres);
 		logFrame(xres,yres);
 
 	}
 
 	if (pause_screen != 0) {
-        PauseScreen(xres, yres);
+	    PauseScreen(xres, yres);
 	}
 	
 	if (help) {
-		show_help(xres,yres);
+	    show_help(xres,yres);
 	}
 	
 	if (intro) {
-		showIntro(xres, yres, capitalTexture);
+	    showIntro(xres, yres, capitalTexture);
 	}
 	
 	if (game_over) {
-		showGameOver(xres, yres);
+	    showGameOver(xres, yres);
 	}
 
 	if (taylorFeature){
-		taylorFeatureOverlay(xres, yres);
+	    taylorFeatureOverlay(xres, yres);
 	}	
 	if (dee_feature) {
-		FeatureBox(xres,yres);
-		showTeir(xres, yres, xTexture);
+	    FeatureBox(xres,yres);
+	    showTeir(xres, yres, xTexture);
 	}	
 
 	if (feature_mode == 1) {
-		FeatureBorder(xres, yres);
+	    FeatureBorder(xres, yres);
 	}
 
 
