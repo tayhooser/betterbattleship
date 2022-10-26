@@ -6,10 +6,10 @@
 //
 //This program needs further refactoring.
 //Maybe a global class.
-//
-//
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -25,6 +25,7 @@
 #include "dsimpson.h"
 #include "jrodriguez4.h"
 #include "dwelch.h"
+#include "thooser.h"
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -35,17 +36,27 @@ void render();
 void get_grid_center(const int g, const int i, const int j, int cent[2]);
 int xres=1200;
 int yres=800;
-//
-#define MAXGRID 16
-#define GRIDDIM 10
-#define NGRIDS 2
-//
+
+// -----------GRID STRUCTURE ------------------------------------------
+
+//#define MAXGRID 16
+const int MAXGRID = 16;
+//#define GRIDDIM 10
+const int GRIDDIM = 10;
+//#define NGRIDS 2
+const int NGRIDS = 2;
+
+// copied to thooser.h, use include headers to use
+/*
+
 typedef struct t_grid {
-	int status;
-	int shipno;
+	int status;  //status of unit 0=empty 1=shipunit 2=damagedunit
+	int shipno;  //ship ID placed there -> 0 = no ship
 	int over;
 	float color[4];
 } Grid;
+*/
+
 Grid grid1[MAXGRID][MAXGRID];
 Grid grid2[MAXGRID][MAXGRID];
 int grid_dim = GRIDDIM;
@@ -123,31 +134,54 @@ public:
 	}
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-Image img[4] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png"};
+
+Image img[5] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png"};
+
 //
 //
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bshipTexture;
 GLuint portraitTexture;
+GLuint capitalTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
-//
-#define MAXSHIPS 4
+Image *capitalImage = NULL;
+
+// -----------LOG STRUCTURE------------------------------------------
+
+#define MAXQUEUE
+
+std::string Event;
+Queue<std::string> logQueue(MAXQUEUE);
+
+
+// -----------SHIP STRUCTURE------------------------------------------
+
+#define MAXSHIPS 10
+
+// original ship structure, updated and moved to thooser.h
+/*
+
 typedef struct t_ship {
 	int status;
 	int pos[16][2];
 	int n;
 	int hv;
 } Ship;
-Ship ship[MAXSHIPS];
+*/
+
+class Ship Ship;
+class Ship ship[MAXSHIPS];
 int nships=0;
 int nshipssunk=0;
 int nbombs=0;
+
 int missileType = 0;
 int feature_mode = 0;
+
 //
 //modes:
 //0 game is at rest
@@ -166,7 +200,9 @@ bool credits = false; //off on startup
 bool intro = true; // plays on startup
 unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
+int jason_feature = 0; // off on start up
 unsigned int game_over = 0; //off on startup
+bool taylorFeature = false; //off on startup, turns on during ship place
 
 
 class X11_wrapper {
@@ -394,12 +430,14 @@ void init_opengl(void)
 	explosionImage  = &img[1];
 	bshipImage      = &img[2];
 	portraitImage 	= &img[3];
+	capitalImage 	= &img[4];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
 	glGenTextures(1, &bshipTexture);
 	glGenTextures(1, &portraitTexture);
+	glGenTextures(1, &capitalTexture);
 	//
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -439,6 +477,17 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
+
+	//portrait
+	w = capitalImage->width;
+	h = capitalImage->height;
+	glBindTexture(GL_TEXTURE_2D, capitalTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
+	//-------------------------------------------------------------------------
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
@@ -546,14 +595,18 @@ void init(void)
 	nbuttons++;
 }
 
+
+// -------- Function prototypes, move to individual .h files ---------
+
+
 extern int show_dwelch();
 extern int show_jason();
 extern int show_danny();
-extern void show_taylor();
+//extern void show_taylor();
 extern void show_cecilio();
 
-extern void showCredits(int xres, int yres, GLuint portraitTexture);
-extern void showIntro(int xres, int yres);
+extern void showIntro(int xres, int yres, GLuint capitalTexture);
+
 extern void showGameOver(int xres, int yres);
 
 void check_keys(XEvent *e)
@@ -583,7 +636,13 @@ void check_keys(XEvent *e)
 			break;
 		case XK_F2:
 			gamemode++;
+			taylorFeature = false;
+			feature_mode = 0;
+			if (gamemode == MODE_PLACE_SHIPS){
+				taylorFeature = true;
+			}
 			if (gamemode == MODE_FIND_SHIPS) {
+				feature_mode = 1;
 				nshipssunk = 0;
 				nbombs = 10;
 			}
@@ -604,7 +663,8 @@ void check_keys(XEvent *e)
 			show_taylor();
 			break;
 		case XK_a:
-			show_jason();
+		//	show_jason(); <--- prints jason in terminal
+			jason_feature = toggle(jason_feature);
 			break;
 		case XK_c:
 			credits = !credits;
@@ -613,7 +673,7 @@ void check_keys(XEvent *e)
 			pause_screen = manage_state(pause_screen);
 			break;
 		case XK_F1:
-			help = toggle_help(help);
+			help = toggle(help);
 			break;
 		case XK_i:
 			intro = !intro;
@@ -621,6 +681,11 @@ void check_keys(XEvent *e)
 		case XK_o:
 			game_over = manage_over_state(game_over);
 			break;
+		case XK_v:
+			if (gamemode == MODE_PLACE_SHIPS)
+				printf("\ncalling validate function...\n");
+				validateShips(grid1, ship, grid_dim);
+        break;
 		case XK_m:
 			missileType ^=1;
 			break;
@@ -660,27 +725,45 @@ void mouse_click(int ibutton, int action, int x, int y)
 				}
 			}
 		}
+		
+		// placing ships
+		
 		for (i=0; i<grid_dim; i++) {
 			for (j=0; j<grid_dim; j++) {
+				// place ships gamemode ----------------------------------------------------
 				if (gamemode == MODE_PLACE_SHIPS) {
 					get_grid_center(1,i,j,cent);
 					if (x >= cent[0]-qsize &&
 						x <= cent[0]+qsize &&
 						y >= cent[1]-qsize &&
 						y <= cent[1]+qsize) {
+						
+						// if user clicked in left grid
+						// TODO: recycle ships
 						if (ibutton == 1) {
 							//does this quad have any connecting quads?
+							if (nships != 0){
 							con = check_connecting_quad(i,j,1);
+							} else {
+								con = 0;
+								printf("placing ships...\n");
+							}
 							if (con != 0) {
 								//same ship continued
 								grid1[i][j].status=1;
-								grid1[i][j].shipno=nships+1;
+								grid1[i][j].shipno=nships;
+								ship[nships].size += 1;
+								ship[nships].updateType();
+								printf("\t\tship %d updated! type %d\n", grid1[i][j].shipno, ship[nships].type);
 							} else {
 								if (nships < MAXSHIPS) {
 									//new ship being placed!
 									grid1[i][j].status = 1;
 									nships++;
-									grid1[i][j].shipno = nships+1;
+									grid1[i][j].shipno = nships;
+									ship[nships].size = 1;
+									ship[nships].updateType();
+									printf("\tship %d just placed! nships = %d\n", grid1[i][j].shipno, nships);
 								}
 							}
 						}
@@ -690,13 +773,16 @@ void mouse_click(int ibutton, int action, int x, int y)
 						break;
 					}
 				}
+				// find ships gamemode ----------------------------------------------------
 				if (gamemode == MODE_FIND_SHIPS) {
 					get_grid_center(2,i,j,cent);
 					if (x >= cent[0]-qsize &&
 						x <= cent[0]+qsize &&
 						y >= cent[1]-qsize &&
 						y <= cent[1]+qsize) {
-						if (ibutton == 1) {
+						
+						// if user clicked in right grid
+						if (ibutton == 1) { 
 							nbombs--;
 							if (grid1[i][j].status) {
 								int s = grid1[i][j].shipno;
@@ -716,26 +802,101 @@ void mouse_click(int ibutton, int action, int x, int y)
 							}
 							if (feature_mode != 0) {
 								if (missileType != 0){
-									if (grid1[i + 1][j].status) {
+									int radar = 0;
+									if (grid1[i][j].status) {
 										int s = grid1[i][j].shipno;
-										int s1 = grid1[i+1][j].shipno;
-										int s2 = grid1[i-1][j].shipno;
-										int s3 = grid1[i][j+1].shipno;
-										int s4 = grid1[i][j-1].shipno;
+										//int s1 = grid1[i+1][j].shipno;
+										//int s2 = grid1[i-1][j].shipno;
+										//int s3 = grid1[i][j+1].shipno;
+										//int s4 = grid1[i][j-1].shipno;
 										grid2[i][j].status = 2;
-										grid2[i+1][j].status = 2;
-										grid2[i-1][j].status = 2;
-										grid2[i][j+1].status = 2;
-										grid2[i][j-1].status = 2;
+										//grid2[i+1][j].status = 2;
+										//grid2[i-1][j].status = 2;
+										//grid2[i][j+1].status = 2;
+										//grid2[i][j-1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
 										{
 											//is this ship sunk?
-											if (check_for_sink(s) &&
-										    	check_for_sink(s1)&&
-										    	check_for_sink(s2)&&
-										    	check_for_sink(s3)&&
-										    	check_for_sink(s4)) {
+											if (check_for_sink(s)) {
+												radar++;
 												nshipssunk++;
 												nbombs += 5;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i + 1][j].status == 1) {
+										get_grid_center(2,(i + 1),j,cent);
+										int s = grid1[i + 1][j].shipno;
+										grid2[i+1][j].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i - 1][j].status == 1) {
+										get_grid_center(2,(i - 1),j,cent);
+										int s = grid1[i-1][j].shipno;
+										grid2[i-1][j].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i][j + 1].status == 1) {
+										get_grid_center(2,i,(j + 1),cent);
+										int s = grid1[i][j + 1].shipno;
+										grid2[i][j+1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i][j - 1].status == 1) {
+										get_grid_center(2,i,(j - 1),cent);
+										int s = grid1[i][j-1].shipno;
+										grid2[i][j-1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
 												if (nshipssunk >= nships) {
 													gamemode = MODE_GAMEOVER;
 												}
@@ -928,7 +1089,7 @@ int check_connecting_quad(int i, int j, int gridno)
 	int t = i-1;
 	int r = j+1;
 	int b = i+1;
-	int s = nships+1;
+	int s = nships;
 	if (gridno==1) {
 		//if (grid1[t][l].shipno==s) return 1;
 		if (grid1[t][j].shipno==s) return 1;
@@ -1132,7 +1293,6 @@ void render(void)
 	switch(gamemode) {
 		case MODE_READY:
 			ggprint16(&r, 0, 0x00ffffff, "Press F2 to place ships!");
-			ggprint16(&r, 0, 0x00ffffff, "Press M to toggle missile type!");
 			break;
 		case MODE_PLACE_SHIPS:
 			ggprint16(&r, 0, 0x00ffffff,
@@ -1145,6 +1305,10 @@ void render(void)
 			ggprint16(&r, 0, 0x00ffffff, "Game over!");
 			break;
 	}
+	r.left = 4;
+	r.bot  = 180;
+	r.center = 0;
+	ggprint16(&r, 20, 0x00ffff00, "Press M to toggle missile type!");
 	r.left = 4;
 	r.bot  = 160;
 	r.center = 0;
@@ -1190,7 +1354,17 @@ void render(void)
 		ggprint16(&r, 0, button[i].text_color, button[i].text);
 
 	}
+
+	if (jason_feature) {
 	
+		feature_border(xres,yres);
+		/* Not yet working
+		logText(logQueue,Event);
+		printText(logQueue,xres,yres); 
+		*/
+		logFrame(xres,yres);
+	}
+
 	if (pause_screen != 0) {
         PauseScreen(xres, yres);
 	}
@@ -1200,15 +1374,21 @@ void render(void)
 	}
 	
 	if (intro) {
-		showIntro(xres, yres);
+		showIntro(xres, yres, capitalTexture);
 	}
 	
 	if (game_over) {
 		showGameOver(xres, yres);
 	}
+
+	if (taylorFeature){
+		taylorFeatureOverlay(xres, yres);
+	}	
+
 	if (feature_mode == 1) {
 		FeatureBorder(xres, yres);
 	}
+
 }
 
 
