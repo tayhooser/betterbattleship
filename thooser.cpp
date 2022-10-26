@@ -5,15 +5,170 @@
 
 #include <stdio.h>
 #include <GL/glx.h>
+#include <algorithm>
 #include "fonts.h"
+#include "thooser.h"
 
+extern class ShipClass ShipClass;
 
+#define MAXGRID 16
+//extern const int MAXGRID;
 
+#define MAXSHIPS 10
+
+// ship constructor
+Ship::Ship()
+{
+	status = SHIP_HEALTHY;
+	type = SHIP_INVALID;
+	size = 0;
+}
+
+// function from lab 4
 void show_taylor()
 {
 	printf("Taylor Hooser\n");
 }
 
+// checks # of ships and shapes are valid
+// TODO: apply texture over valid ships
+void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
+{
+	int validated[MAXSHIPS];
+	int v = 0;
+	int curShip;
+	bool repairExists = false;
+	bool planetExists = false;
+	
+	for (int i = 0 ; i < grid_dim; i++){
+		for (int j = 0; j < grid_dim; j++){
+			
+			if (grid[i][j].status == 1){ //if ship exists at location
+				curShip = grid[i][j].shipno;
+				// if ship not already validated
+				if (std::find(validated, validated+MAXSHIPS, curShip) == validated+MAXSHIPS){
+					
+					validated[v] = curShip;
+					v++;
+					ship[curShip].pos[0] = i;
+					ship[curShip].pos[1] = j;
+					
+					printf("\tship %d found!\n", curShip);
+					printf("\t\tsize = %d\n",  ship[curShip].size);
+					printf("\t\ttype = %d\n",  ship[curShip].type);
+					printf("\t\tlocation = (%d,%d)\n", i, j);
+					
+					//find bottom left corner of ship, validate all possible shapes
+					
+					// attack : 2x1
+					if (ship[curShip].type == SHIP_ATTACK){
+						if (grid[i][j+1].shipno == curShip){
+							ship[curShip].orientation = 0; //horizontal
+						}else if (grid[i+1][j].shipno == curShip){
+							ship[curShip].orientation = 1; //vetical
+						}else{
+							ship[curShip].type = SHIP_INVALID;
+						}
+						
+					// capital : 3x1
+					}else if (ship[curShip].type == SHIP_CAPITAL){
+						if ((grid[i][j+1].shipno == curShip) and 
+							 grid[i][j+2].shipno == curShip){
+							ship[curShip].orientation = 0; //horizontal
+						}else if ((grid[i+1][j].shipno == curShip) and
+								  (grid[i+2][j].shipno == curShip)){
+							ship[curShip].orientation = 1; //vetical
+						}else{
+							ship[curShip].type = SHIP_INVALID;
+						}
+					
+					// repair : 1x1 ONLY 1
+					}else if (ship[curShip].type == SHIP_REPAIR){
+						if (repairExists){
+							ship[curShip].type = SHIP_INVALID;
+						}else{
+							repairExists = true;
+						}
+						
+					// planet : 3x3 ONLY 1
+					}else if (ship[curShip].type == SHIP_PLANET){
+						if (!planetExists and
+						   (grid[i][j+1].shipno == curShip) and
+						   (grid[i][j+2].shipno == curShip) and
+						   (grid[i+1][j+0].shipno == curShip) and
+						   (grid[i+1][j+1].shipno == curShip) and
+						   (grid[i+1][j+2].shipno == curShip) and
+						   (grid[i+2][j].shipno == curShip) and
+						   (grid[i+2][j+1].shipno == curShip) and
+						   (grid[i+2][j+2].shipno == curShip)){
+							planetExists = true;
+						}else{
+							ship[curShip].type = SHIP_INVALID;
+						}
+						
+					}
+						
+					if (ship[curShip].type == SHIP_INVALID){
+						printf("\t\t!!SHIP %d INVALID!!\n", grid[i][j].shipno);
+						// delete ship
+						// all grids whos shipno = curship:
+							//set grid shipno = 0
+							//set grid status = 0
+					}else{
+						printf("\t\tship %d valid! orientation = %d\n", curShip, ship[curShip].orientation);
+					}
+				}
+			}
+		}
+	}
+}
+
+// deletes ship
+void deleteShip(Grid grid[][MAXGRID], Ship ship[])
+{
+	 //all grids whos shipno = curship:
+		//set grid shipno = 0
+		//set grid status = 0
+}
+
+
+// overlay during ship placement phase
+void taylorFeatureOverlay(int xres, int yres)
+{
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor4f(1.0, 1.0, 0.0, 0.5);
+	int w = 20;
+	glBegin(GL_TRIANGLE_STRIP);
+		glVertex2i(0, 0);
+		glVertex2i(w, w);
+		
+		glVertex2i(0, yres);
+		glVertex2i(w, yres-w);
+			
+		glVertex2i(xres, yres);
+		glVertex2i(xres-w, yres-w);
+			
+		glVertex2i(xres, 0);
+		glVertex2i(xres-w, w);
+			
+		glVertex2i(0, 0);
+		glVertex2i(w, w);
+	glEnd();
+	glDisable(GL_BLEND);
+	
+	Rect r;
+	r.left = 40;
+	r.bot  = yres - 40;
+	r.center = 0;
+	
+	ggprint16(&r, 40, 0xffffff00, "Taylor's Feature:");
+	ggprint16(&r, 40, 0xffffff00, "Ship types, textures, and validation");
+	ggprint16(&r, 40, 0xffffff00, "Press V to validate ships");
+}
+
+// function from lab 7
+// credits overlay with 128x128 pixel images
 void showCredits(int xres, int yres, GLuint portraitTexture)
 {
 	
