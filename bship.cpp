@@ -1291,6 +1291,7 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
+		//game_log(xres,yres);
 
 		/* Not yet working
 		logText(logQueue,Event);
