@@ -202,9 +202,7 @@ unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
 int jason_feature = 0; // off on start up
 unsigned int game_over = 0; //off on startup
-bool dee_feature = false; //off on startup
 bool taylorFeature = false; //off on startup, turns on during ship place
-
 
 
 class X11_wrapper {
@@ -607,11 +605,6 @@ extern int show_danny();
 //extern void show_taylor();
 extern void show_cecilio();
 
-extern void showCredits(int xres, int yres, GLuint portraitTexture);
-extern void showIntro(int xres, int yres);
-extern void showGameOver(int xres, int yres);
-extern void showTeir(int xres, int yres, GLuint xTexture);
-extern void FeatureBox(int xres, int yres);
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
 
 extern void showGameOver(int xres, int yres);
@@ -664,8 +657,7 @@ void check_keys(XEvent *e)
 			show_cecilio();
 			break;
 		case XK_d:
-			//show_dwelch(); <--- prints delaney to terminal 
-			dee_feature = !dee_feature;
+			show_dwelch();
 			break;
 		case XK_t:
 			show_taylor();
@@ -810,26 +802,101 @@ void mouse_click(int ibutton, int action, int x, int y)
 							}
 							if (feature_mode != 0) {
 								if (missileType != 0){
-									if (grid1[i + 1][j].status) {
+									int radar = 0;
+									if (grid1[i][j].status) {
 										int s = grid1[i][j].shipno;
-										int s1 = grid1[i+1][j].shipno;
-										int s2 = grid1[i-1][j].shipno;
-										int s3 = grid1[i][j+1].shipno;
-										int s4 = grid1[i][j-1].shipno;
+										//int s1 = grid1[i+1][j].shipno;
+										//int s2 = grid1[i-1][j].shipno;
+										//int s3 = grid1[i][j+1].shipno;
+										//int s4 = grid1[i][j-1].shipno;
 										grid2[i][j].status = 2;
-										grid2[i+1][j].status = 2;
-										grid2[i-1][j].status = 2;
-										grid2[i][j+1].status = 2;
-										grid2[i][j-1].status = 2;
+										//grid2[i+1][j].status = 2;
+										//grid2[i-1][j].status = 2;
+										//grid2[i][j+1].status = 2;
+										//grid2[i][j-1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
 										{
 											//is this ship sunk?
-											if (check_for_sink(s) &&
-										    	check_for_sink(s1)&&
-										    	check_for_sink(s2)&&
-										    	check_for_sink(s3)&&
-										    	check_for_sink(s4)) {
+											if (check_for_sink(s)) {
+												radar++;
 												nshipssunk++;
 												nbombs += 5;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i + 1][j].status == 1) {
+										get_grid_center(2,(i + 1),j,cent);
+										int s = grid1[i + 1][j].shipno;
+										grid2[i+1][j].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i - 1][j].status == 1) {
+										get_grid_center(2,(i - 1),j,cent);
+										int s = grid1[i-1][j].shipno;
+										grid2[i-1][j].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i][j + 1].status == 1) {
+										get_grid_center(2,i,(j + 1),cent);
+										int s = grid1[i][j + 1].shipno;
+										grid2[i][j+1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i][j - 1].status == 1) {
+										get_grid_center(2,i,(j - 1),cent);
+										int s = grid1[i][j-1].shipno;
+										grid2[i][j-1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
 												if (nshipssunk >= nships) {
 													gamemode = MODE_GAMEOVER;
 												}
@@ -1291,14 +1358,11 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
-		//game_log(xres,yres);
-
 		/* Not yet working
 		logText(logQueue,Event);
 		printText(logQueue,xres,yres); 
 		*/
 		logFrame(xres,yres);
-
 	}
 
 	if (pause_screen != 0) {
@@ -1320,15 +1384,10 @@ void render(void)
 	if (taylorFeature){
 		taylorFeatureOverlay(xres, yres);
 	}	
-	if (dee_feature) {
-		FeatureBox(xres,yres);
-		showTeir(xres, yres, xTexture);
-	}	
 
 	if (feature_mode == 1) {
 		FeatureBorder(xres, yres);
 	}
-
 
 }
 
