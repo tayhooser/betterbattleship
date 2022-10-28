@@ -135,7 +135,7 @@ public:
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
 
-Image img[5] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png"};
+Image img[6] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png", "./GameOver.png"};
 
 //
 //
@@ -144,11 +144,13 @@ GLuint explosionTexture;
 GLuint bshipTexture;
 GLuint portraitTexture;
 GLuint capitalTexture;
+GLuint overTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bshipImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
+Image *overImage = NULL;
 
 // -----------LOG STRUCTURE------------------------------------------
 
@@ -433,6 +435,7 @@ void init_opengl(void)
 	bshipImage      = &img[2];
 	portraitImage 	= &img[3];
 	capitalImage 	= &img[4];
+	overImage 	= &img[5];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
@@ -440,6 +443,7 @@ void init_opengl(void)
 	glGenTextures(1, &bshipTexture);
 	glGenTextures(1, &portraitTexture);
 	glGenTextures(1, &capitalTexture);
+	glGenTextures(1, &overTexture);
 	//
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -480,7 +484,7 @@ void init_opengl(void)
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
 
-	//portrait
+	//capital
 	w = capitalImage->width;
 	h = capitalImage->height;
 	glBindTexture(GL_TEXTURE_2D, capitalTexture);
@@ -490,6 +494,15 @@ void init_opengl(void)
 								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
 	//-------------------------------------------------------------------------
 
+	//over
+	w = overImage->width;
+	h = overImage->height;
+	glBindTexture(GL_TEXTURE_2D, overTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, overImage->data);
+	//-------------------------------------------------------------------------
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
@@ -608,14 +621,13 @@ extern int show_danny();
 extern void show_cecilio();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
-extern void game_log(int xres, int yres);
 extern void showIntro(int xres, int yres);
 extern void showGameOver(int xres, int yres);
 extern void showTeir(int xres, int yres, GLuint xTexture);
 extern void FeatureBox(int xres, int yres);
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
 
-extern void showGameOver(int xres, int yres);
+extern void showGameOver(int xres, int yres, GLuint overTexture);
 
 void check_keys(XEvent *e)
 {
@@ -1292,11 +1304,12 @@ void render(void)
 	if (jason_feature) {
 	
 		feature_border(xres,yres);
+		//game_log(xres,yres);
+
 		/* Not yet working
 		logText(logQueue,Event);
 		printText(logQueue,xres,yres); 
 		*/
-		game_log(xres,yres);
 		logFrame(xres,yres);
 
 	}
@@ -1306,27 +1319,27 @@ void render(void)
 	}
 	
 	if (help) {
-	    show_help(xres,yres);
+		show_help(xres,yres);
 	}
 	
 	if (intro) {
-	    showIntro(xres, yres, capitalTexture);
+		showIntro(xres, yres, capitalTexture);
 	}
 	
 	if (game_over) {
-	    showGameOver(xres, yres);
+		showGameOver(xres, yres, overTexture);
 	}
 
 	if (taylorFeature){
-	    taylorFeatureOverlay(xres, yres);
+		taylorFeatureOverlay(xres, yres);
 	}	
 	if (dee_feature) {
-	    FeatureBox(xres,yres);
-	    showTeir(xres, yres, xTexture);
+		FeatureBox(xres,yres);
+		showTeir(xres, yres, xTexture);
 	}	
 
 	if (feature_mode == 1) {
-	    FeatureBorder(xres, yres);
+		FeatureBorder(xres, yres);
 	}
 
 
