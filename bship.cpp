@@ -135,7 +135,7 @@ public:
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
 
-Image img[6] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png", "./GameOver.png"};
+Image img[6] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png", "./gameover.png"};
 
 //
 //
@@ -435,7 +435,7 @@ void init_opengl(void)
 	bshipImage      = &img[2];
 	portraitImage 	= &img[3];
 	capitalImage 	= &img[4];
-	overImage 	= &img[5];
+	overImage    	= &img[5];
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
@@ -484,7 +484,7 @@ void init_opengl(void)
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
 
-	//capital
+	//portrait
 	w = capitalImage->width;
 	h = capitalImage->height;
 	glBindTexture(GL_TEXTURE_2D, capitalTexture);
@@ -493,8 +493,7 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
 	//-------------------------------------------------------------------------
-
-	//over
+	//game over
 	w = overImage->width;
 	h = overImage->height;
 	glBindTexture(GL_TEXTURE_2D, overTexture);
@@ -502,7 +501,7 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, overImage->data);
-	//-------------------------------------------------------------------------
+	//
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
@@ -626,7 +625,6 @@ extern void showGameOver(int xres, int yres);
 extern void showTeir(int xres, int yres, GLuint xTexture);
 extern void FeatureBox(int xres, int yres);
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
-
 extern void showGameOver(int xres, int yres, GLuint overTexture);
 
 void check_keys(XEvent *e)
@@ -1315,7 +1313,7 @@ void render(void)
 	}
 
 	if (pause_screen != 0) {
-	    PauseScreen(xres, yres);
+        PauseScreen(xres, yres);
 	}
 	
 	if (help) {

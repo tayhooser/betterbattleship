@@ -255,49 +255,42 @@ void showTeir(int xres, int yres, GLuint xTexture)
 
 void showGameOver(int xres, int yres, GLuint overTexture)
 {
-	Rect r;
+//	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
-	int w = 350;
-	int h = 220;
-//	int imgdim = 64;
-//	int imgx;
-//	int imgy;
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glColor4f(0, 0, 0, 0.4f);
+//	int w = 350;
+//	int h = 220;
+	int imgdim = 640;
+	int imgx;
+	int imgy;
+
+/*	glColor3f(0, 0, 0);
 	glBegin(GL_QUADS);
 		glVertex2f(xcent-w, ycent-h);
 		glVertex2f(xcent-w, ycent+h);
 		glVertex2f(xcent+w, ycent+h);
 		glVertex2f(xcent+w, ycent-h);
 	glEnd();
-	glDisable(GL_BLEND);
-
 	r.left = xcent;
 	r.bot  = ycent + 80;
 	r.center = 50;
+	//ggprint16(&r, 50, 0xffffffff, "Game Over");
+*/	
+	imgx = xcent;
+	imgy = ycent;
 	
-	//imgx = xcent - 100;
-	//imgy = ycent + 150 + 16;
-
 	glBindTexture(GL_TEXTURE_2D, overTexture);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(xcent-w, ycent-h);
-	//	glVertex2f(imgx-imgdim, imgy-imgdim);
+		glVertex2f(imgx-imgdim, imgy-imgdim);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(xcent-w, ycent+h);
-	//	glVertex2f(imgx-imgdim, imgy+imgdim);
+		glVertex2f(imgx-imgdim, imgy+imgdim);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(xcent+w, ycent+h);
-	//	glVertex2f(imgx+imgdim, imgy+imgdim);
+		glVertex2f(imgx+imgdim, imgy+imgdim);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(xcent+w, ycent-h);
-	//	glVertex2f(imgx+imgdim, imgy-imgdim);
+		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
-//	ggprint16(&r, 50, 0xffffffff, "Game Over");
+
 }
 
