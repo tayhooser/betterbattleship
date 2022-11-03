@@ -27,6 +27,8 @@
 #include "dwelch.h"
 #include "thooser.h"
 
+#include <iostream>
+
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
 //prototypes
@@ -150,14 +152,8 @@ Image *bshipImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
 
-// -----------LOG STRUCTURE------------------------------------------
-
-#define MAXQUEUE
-
-std::string Event;
-Queue<std::string> logQueue(MAXQUEUE);
-
-
+// -----------LOG STRUCTURE-----------------------------------------
+Queue logQueue;
 // -----------SHIP STRUCTURE------------------------------------------
 
 #define MAXSHIPS 10
@@ -638,8 +634,8 @@ void check_keys(XEvent *e)
 		case XK_Escape:
 			done=1;
 			break;
-		case XK_q:
-			done=1;
+		case XK_F1:
+			help = toggle(help);
 			break;
 		case XK_F2:
 			gamemode++;
@@ -657,45 +653,28 @@ void check_keys(XEvent *e)
 				gamemode = MODE_READY;
 			}
 			break;
-		case XK_s:
-			show_danny();
-			break;
-		case XK_g:
-			show_cecilio();
-			break;
-		case XK_d:
-			//show_dwelch(); <--- prints delaney to terminal 
-			dee_feature = !dee_feature;
-			break;
-		case XK_t:
-			show_taylor();
-			break;
 		case XK_a:
-		//	show_jason(); <--- prints jason in terminal
+			//show_jason(); <--- prints jason in terminal
 			jason_feature = toggle(jason_feature);
+			break;
+		case XK_z:
+				logQueue.enqueue(" Parenthisis ");
+			break;
+		case XK_x:
+				logQueue.enqueue(" Exponents ");
+				logQueue.enqueue(" Multiplication ");
+				logQueue.enqueue(" Division ");
+				logQueue.enqueue(" Addition and Subtraction ");
+			break;
+		case XK_w:
+				logQueue.showQueue();
 			break;
 		case XK_c:
 			credits = !credits;
 			break;
-		case XK_p:
-			pause_screen = manage_state(pause_screen);
-			break;
-		case XK_F1:
-			help = toggle(help);
-			break;
-		case XK_i:
-			intro = !intro;
-			break;
-		case XK_o:
-			game_over = manage_over_state(game_over);
-			break;
-		case XK_v:
-			if (gamemode == MODE_PLACE_SHIPS)
-				printf("\ncalling validate function...\n");
-				validateShips(grid1, ship, grid_dim);
-        break;
-		case XK_m:
-			missileType ^=1;
+		case XK_d:
+			//show_dwelch(); <--- prints delaney to terminal 
+			dee_feature = !dee_feature;
 			break;
 		case XK_f:
 			feature_mode = manage_state(feature_mode);
@@ -703,6 +682,35 @@ void check_keys(XEvent *e)
 				gamemode = MODE_FIND_SHIPS;
 			}
 			break;
+		case XK_g:
+			show_cecilio();
+			break;
+		case XK_i:
+			intro = !intro;
+			break;
+		case XK_m:
+			missileType ^=1;
+			break;
+		case XK_o:
+			game_over = manage_over_state(game_over);
+			break;
+		case XK_t:
+			show_taylor();
+			break;
+		case XK_p:
+			pause_screen = manage_state(pause_screen);
+			break;
+		case XK_q:
+			done=1;
+			break;
+		case XK_s:
+			show_danny();
+			break;
+		case XK_v:
+			if (gamemode == MODE_PLACE_SHIPS)
+				printf("\ncalling validate function...\n");
+				validateShips(grid1, ship, grid_dim);
+        	break;
 	}
 }
 
@@ -725,10 +733,18 @@ void mouse_click(int ibutton, int action, int x, int y)
 				}
 				if (i==1) {
 					//user clicked credits
+					if ( logQueue.isFull() )
+						logQueue.dequeue();
+					else
+					logQueue.enqueue(" Credits pressed ");
 					credits = !credits;
 				}
 				if (i==2) {
 					//user clicked reset
+					if ( logQueue.isFull() )
+						logQueue.dequeue();
+					else
+					logQueue.enqueue(" Grids Reset ");
 					reset_grids();
 				}
 			}
@@ -803,6 +819,10 @@ void mouse_click(int ibutton, int action, int x, int y)
 										nshipssunk++;
 										nbombs += 5;
 										if (nshipssunk >= nships) {
+												if ( logQueue.isFull() )
+													logQueue.dequeue();
+												else
+													logQueue.enqueue(" Game over bro ");
 											gamemode = MODE_GAMEOVER;
 										}
 									}
@@ -831,6 +851,10 @@ void mouse_click(int ibutton, int action, int x, int y)
 												nshipssunk++;
 												nbombs += 5;
 												if (nshipssunk >= nships) {
+														if ( logQueue.isFull() )
+															logQueue.dequeue();
+														else
+															logQueue.enqueue(" Game over bro ");
 													gamemode = MODE_GAMEOVER;
 												}
 											}
@@ -839,6 +863,10 @@ void mouse_click(int ibutton, int action, int x, int y)
 								}
 							}
 							if (nbombs <= 0) {
+									if ( logQueue.isFull() )
+										logQueue.dequeue();
+									else
+										logQueue.enqueue(" Game over bro ");
 								gamemode = MODE_GAMEOVER;
 							}
 						}
@@ -1289,16 +1317,9 @@ void render(void)
 	}
 
 	if (jason_feature) {
-	
-		feature_border(xres,yres);
-		//game_log(xres,yres);
-
-		/* Not yet working
-		logText(logQueue,Event);
-		printText(logQueue,xres,yres); 
-		*/
-		logFrame(xres,yres);
-
+		feature_border(xres,yres);	// enable border	
+		log_window(xres,yres); // enable log window
+		log_print(logQueue, xres, yres);
 	}
 
 	if (pause_screen != 0) {
