@@ -1246,7 +1246,7 @@ void render(void)
 			ggprint16(&r, 0, 0x00ffffff, "Search for ships on grid!");
 			break;
 		case MODE_GAMEOVER:
-			ggprint16(&r, 0, 0x00ffffff, "Game over!");
+			showGameOver(xres, yres, overTexture);
 			break;
 	}
 	r.left = 4;
