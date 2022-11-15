@@ -31,6 +31,8 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 {
 	int validated[MAXSHIPS] = { 0 };
 	int v = 0;
+	int toDelete[MAXSHIPS] = { 0 };
+	int d = 0;
 	int curShip;
 	bool repairExists = false;
 	bool planetExists = false;
@@ -40,7 +42,7 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 			
 			if (grid[i][j].status == 1){ //if ship exists at location
 				curShip = grid[i][j].shipno;
-				printf("\tcurShip = %d\n", curShip);
+				//printf("\tcurShip = %d\n", curShip);
 				
 				// if ship not already validated
 				if (std::find(validated, validated+MAXSHIPS, curShip) == validated+MAXSHIPS){
@@ -107,8 +109,8 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 						
 					if (ship[curShip].type == SHIP_INVALID){
 						printf("\t\t!!SHIP %d INVALID!!\n", grid[i][j].shipno);
-						deleteShip(grid, ship, GRIDDIM, curShip, nships);
-						printf("\n\tShip %d deleted, ship %d renamed to %d\n", curShip, nships + 1, curShip);
+						toDelete[d] = curShip;
+						d++;
 					}else{
 						printf("\t\tship %d valid! orientation = %d\n", curShip, ship[curShip].orientation);
 					}
@@ -116,32 +118,52 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 			}
 		}
 	}
+	
+	printf("END VALIDATION\n");
+	
+	// delete ships in delete list
+	for (int i = 0 ; i < MAXSHIPS; i++){
+		if (toDelete[i] != 0){
+			deleteShip(grid, ship, GRIDDIM, toDelete[i], nships);
+			printf("\n\tShip %d deleted, ship %d renamed to %d\n", toDelete[i], nships, toDelete[i]);
+		}
+	}
+	
 }
 
+// CURRENLY JUST PRINTS GRID
 // deletes given ship, called by validateShips()
 void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nships)
 {
-	
-	//recycle ship
-	for (int i = 1; i <= nships; i++){
-		if (i == curShip){
-			ship[i] = ship[nships];
-			nships -= 1;
-		}
-	}
 
 	//update grid
 	for (int i = 0 ; i < GRIDDIM; i++){
 		for (int j = 0; j < GRIDDIM; j++){
-			// grid refers to now deleted ship
+			printf("%d", grid[i][j].shipno);
+			
+			
 			if (grid[i][j].shipno = curShip){
 				grid[i][j].shipno = 0; //no ship
 				grid[i][j].status = 0; //empty grid space
+				//printf("ship %d found, setting (%d, %d) to default/n", curShip, i, j);
 			}
-			// grid refers to previously ship[nships]
-			if (grid[i][j].shipno = nships+1){
+			// grid refers to last ship in list
+			else if (grid[i][j].shipno = nships){
 				grid[i][j].shipno = curShip;
+				//printf("ship %d found, setting (%d, %d) to default\n", nships, i, j);
 			}
+			
+			
+		}
+		printf("\n");
+	}
+	
+	
+	//recycle ship : ship[i] refers to most recent valid ship
+	for (int i = 1; i <= nships; i++){
+		if (i == curShip){
+			ship[i] = ship[nships];
+			nships -= 1;
 		}
 	}
 }
