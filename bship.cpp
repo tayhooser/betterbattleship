@@ -830,24 +830,23 @@ void mouse_click(int ibutton, int action, int x, int y)
 							}
 							if (feature_mode != 0) {
 								if (missileType != 0){
-									if (grid1[i + 1][j].status) {
+									int radar = 0;
+									if (grid1[i][j].status) {
 										int s = grid1[i][j].shipno;
-										int s1 = grid1[i+1][j].shipno;
-										int s2 = grid1[i-1][j].shipno;
-										int s3 = grid1[i][j+1].shipno;
-										int s4 = grid1[i][j-1].shipno;
+										//int s1 = grid1[i+1][j].shipno;
+										//int s2 = grid1[i-1][j].shipno;
+										//int s3 = grid1[i][j+1].shipno;
+										//int s4 = grid1[i][j-1].shipno;
 										grid2[i][j].status = 2;
-										grid2[i+1][j].status = 2;
-										grid2[i-1][j].status = 2;
-										grid2[i][j+1].status = 2;
-										grid2[i][j-1].status = 2;
+										//grid2[i+1][j].status = 2;
+										//grid2[i-1][j].status = 2;
+										//grid2[i][j+1].status = 2;
+										//grid2[i][j-1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
 										{
 											//is this ship sunk?
-											if (check_for_sink(s) &&
-										    	check_for_sink(s1)&&
-										    	check_for_sink(s2)&&
-										    	check_for_sink(s3)&&
-										    	check_for_sink(s4)) {
+											if (check_for_sink(s)) {
+												radar++;
 												nshipssunk++;
 												nbombs += 5;
 												if (nshipssunk >= nships) {
@@ -855,6 +854,81 @@ void mouse_click(int ibutton, int action, int x, int y)
 															logQueue.dequeue();
 														else
 															logQueue.enqueue(" Game over bro ");
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i + 1][j].status == 1) {
+										get_grid_center(2,(i + 1),j,cent);
+										int s = grid1[i + 1][j].shipno;
+										grid2[i+1][j].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i - 1][j].status == 1) {
+										get_grid_center(2,(i - 1),j,cent);
+										int s = grid1[i-1][j].shipno;
+										grid2[i-1][j].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i][j + 1].status == 1) {
+										get_grid_center(2,i,(j + 1),cent);
+										int s = grid1[i][j + 1].shipno;
+										grid2[i][j+1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											//is this ship sunk?
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
+													gamemode = MODE_GAMEOVER;
+												}
+											}
+										}
+									}
+									if (grid1[i][j - 1].status == 1) {
+										get_grid_center(2,i,(j - 1),cent);
+										int s = grid1[i][j-1].shipno;
+										grid2[i][j-1].status = 2;
+										make_particle(cent[0], cent[1], qsize);
+										{
+											if (check_for_sink(s)) {
+												if (!(radar >= 1)){
+													nshipssunk++;
+													nbombs += 5;
+												}
+												radar++;
+												if (nshipssunk >= nships) {
 													gamemode = MODE_GAMEOVER;
 												}
 											}
