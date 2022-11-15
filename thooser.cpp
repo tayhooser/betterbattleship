@@ -11,11 +11,6 @@
 
 extern class ShipClass ShipClass;
 
-#define MAXGRID 16
-//extern const int MAXGRID;
-
-#define MAXSHIPS 10
-
 // ship constructor
 Ship::Ship()
 {
@@ -32,19 +27,21 @@ void show_taylor()
 
 // checks # of ships and shapes are valid
 // TODO: apply texture over valid ships
-void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
+void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships)
 {
-	int validated[MAXSHIPS];
+	int validated[MAXSHIPS] = { 0 };
 	int v = 0;
 	int curShip;
 	bool repairExists = false;
 	bool planetExists = false;
 	
-	for (int i = 0 ; i < grid_dim; i++){
-		for (int j = 0; j < grid_dim; j++){
+	for (int i = 0 ; i < GRIDDIM; i++){
+		for (int j = 0; j < GRIDDIM; j++){
 			
 			if (grid[i][j].status == 1){ //if ship exists at location
 				curShip = grid[i][j].shipno;
+				printf("\tcurShip = %d\n", curShip);
+				
 				// if ship not already validated
 				if (std::find(validated, validated+MAXSHIPS, curShip) == validated+MAXSHIPS){
 					
@@ -110,10 +107,8 @@ void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
 						
 					if (ship[curShip].type == SHIP_INVALID){
 						printf("\t\t!!SHIP %d INVALID!!\n", grid[i][j].shipno);
-						// delete ship
-						// all grids whos shipno = curship:
-							//set grid shipno = 0
-							//set grid status = 0
+						deleteShip(grid, ship, GRIDDIM, curShip, nships);
+						printf("\n\tShip %d deleted, ship %d renamed to %d\n", curShip, nships + 1, curShip);
 					}else{
 						printf("\t\tship %d valid! orientation = %d\n", curShip, ship[curShip].orientation);
 					}
@@ -123,14 +118,33 @@ void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
 	}
 }
 
-// deletes ship
-void deleteShip(Grid grid[][MAXGRID], Ship ship[])
+// deletes given ship, called by validateShips()
+void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nships)
 {
-	 //all grids whos shipno = curship:
-		//set grid shipno = 0
-		//set grid status = 0
-}
+	
+	//recycle ship
+	for (int i = 1; i <= nships; i++){
+		if (i == curShip){
+			ship[i] = ship[nships];
+			nships -= 1;
+		}
+	}
 
+	//update grid
+	for (int i = 0 ; i < GRIDDIM; i++){
+		for (int j = 0; j < GRIDDIM; j++){
+			// grid refers to now deleted ship
+			if (grid[i][j].shipno = curShip){
+				grid[i][j].shipno = 0; //no ship
+				grid[i][j].status = 0; //empty grid space
+			}
+			// grid refers to previously ship[nships]
+			if (grid[i][j].shipno = nships+1){
+				grid[i][j].shipno = curShip;
+			}
+		}
+	}
+}
 
 // overlay during ship placement phase
 void taylorFeatureOverlay(int xres, int yres)
