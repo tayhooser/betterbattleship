@@ -135,19 +135,19 @@ public:
 };
 //Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
 
-Image img[6] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png", "./gameover.png"};
+Image img[6] = {"./x.png", "./explosion.png", "./Death-Star-Wallpaper.png", "./portraitPlaceholder.png", "./capitalshipcombat.png", "./gameover.png"};
 
 //
 //
 GLuint xTexture;
 GLuint explosionTexture;
-GLuint bshipTexture;
+GLuint DstarTexture;
 GLuint portraitTexture;
 GLuint capitalTexture;
 GLuint overTexture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
-Image *bshipImage = NULL;
+Image *DstarImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
 Image *overImage = NULL;
@@ -432,7 +432,7 @@ void init_opengl(void)
 //	bshipImage      = ppm6GetImage("./bship.ppm");
 	xImage          = &img[0];
 	explosionImage  = &img[1];
-	bshipImage      = &img[2];
+	DstarImage      = &img[2];
 	portraitImage 	= &img[3];
 	capitalImage 	= &img[4];
 	overImage    	= &img[5];
@@ -440,7 +440,7 @@ void init_opengl(void)
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
-	glGenTextures(1, &bshipTexture);
+	glGenTextures(1, &DstarTexture);
 	glGenTextures(1, &portraitTexture);
 	glGenTextures(1, &capitalTexture);
 	glGenTextures(1, &overTexture);
@@ -466,13 +466,13 @@ void init_opengl(void)
 								GL_RGB, GL_UNSIGNED_BYTE, explosionImage->data);
 	//-------------------------------------------------------------------------
 	//bship
-	w = bshipImage->width;
-	h = bshipImage->height;
-	glBindTexture(GL_TEXTURE_2D, bshipTexture);
+	w = DstarImage->width;
+	h = DstarImage->height;
+	glBindTexture(GL_TEXTURE_2D, DstarTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-								GL_RGB, GL_UNSIGNED_BYTE, bshipImage->data);
+								GL_RGB, GL_UNSIGNED_BYTE, DstarImage->data);
 	//-------------------------------------------------------------------------
 	//portrait
 	w = portraitImage->width;
@@ -1129,7 +1129,7 @@ void render(void)
 	glColor3f(0.8f, 0.6f, 0.2f);
 	//
 	//show screen background...
-	glBindTexture(GL_TEXTURE_2D, bshipTexture);
+	glBindTexture(GL_TEXTURE_2D, DstarTexture);
 	glColor3f(0.2f, 0.2f, 0.6f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f);  glVertex2i(0,    0);
