@@ -119,8 +119,6 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 		}
 	}
 	
-	printf("END VALIDATION\n");
-	
 	// delete ships in delete list
 	for (int i = 0 ; i < MAXSHIPS; i++){
 		if (toDelete[i] != 0){
@@ -131,41 +129,30 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 	
 }
 
-// CURRENLY JUST PRINTS GRID
 // deletes given ship, called by validateShips()
 void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nships)
 {
-
 	//update grid
-	for (int i = 0 ; i < GRIDDIM; i++){
+	for (int i = 0; i < GRIDDIM; i++){
 		for (int j = 0; j < GRIDDIM; j++){
-			printf("%d", grid[i][j].shipno);
-			
-			
-			if (grid[i][j].shipno = curShip){
-				grid[i][j].shipno = 0; //no ship
-				grid[i][j].status = 0; //empty grid space
+			// delete given ship from grid
+			if (grid[i][j].shipno == curShip){
+				grid[i][j].shipno = 0;
+				grid[i][j].status = 0;
 				//printf("ship %d found, setting (%d, %d) to default/n", curShip, i, j);
 			}
-			// grid refers to last ship in list
-			else if (grid[i][j].shipno = nships){
+			// recycle ship
+			else if ((grid[i][j].shipno = nships) and curShip != nships){
 				grid[i][j].shipno = curShip;
 				//printf("ship %d found, setting (%d, %d) to default\n", nships, i, j);
 			}
 			
 			
 		}
-		printf("\n");
 	}
-	
-	
-	//recycle ship : ship[i] refers to most recent valid ship
-	for (int i = 1; i <= nships; i++){
-		if (i == curShip){
-			ship[i] = ship[nships];
-			nships -= 1;
-		}
-	}
+	//recycle ship
+	ship[curShip] = ship[nships];
+	nships -= 1;
 }
 
 // overlay during ship placement phase
@@ -207,7 +194,6 @@ void taylorFeatureOverlay(int xres, int yres)
 // credits overlay with 128x128 pixel images
 void showCredits(int xres, int yres, GLuint portraitTexture)
 {
-	
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -332,6 +318,4 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	
 }

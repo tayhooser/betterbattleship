@@ -6,10 +6,10 @@
 //
 //This program needs further refactoring.
 //Maybe a global class.
-
+//
+//
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -26,8 +26,6 @@
 #include "jrodriguez4.h"
 #include "dwelch.h"
 #include "thooser.h"
-
-#include <iostream>
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -47,6 +45,8 @@ const int MAXGRID = 16;
 const int GRIDDIM = 10;
 //#define NGRIDS 2
 const int NGRIDS = 2;
+// 11 actual ships, +1 for dummy ship at ship[0]
+#define MAXSHIPS 11 + 1
 
 // copied to thooser.h, use include headers to use
 /*
@@ -65,6 +65,9 @@ int grid_dim = GRIDDIM;
 int board_dim;
 int qsize;
 int done=0;
+
+// -----------BUTTON STRUCTURE ------------------------------------------
+
 int lbutton=0;
 int rbutton=0;
 #define MAXBUTTONS 8
@@ -80,8 +83,36 @@ typedef struct t_button {
 } Button;
 Button button[MAXBUTTONS];
 int nbuttons=0;
-//
-//
+
+void createButton(const char* text, int x, int y)
+{
+	button[nbuttons].r.width = 200;
+	button[nbuttons].r.height = 50;
+	button[nbuttons].r.left = x;
+	button[nbuttons].r.bot = y;
+	button[nbuttons].r.right =
+		button[nbuttons].r.left + button[nbuttons].r.width;
+	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
+	button[nbuttons].r.centerx =
+		(button[nbuttons].r.left + button[nbuttons].r.right) / 2;
+	button[nbuttons].r.centery =
+		(button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
+	strcpy(button[nbuttons].text, text);
+	button[nbuttons].down = 0;
+	button[nbuttons].click = 0;
+	button[nbuttons].color[0] = 0.4f;
+	button[nbuttons].color[1] = 0.4f;
+	button[nbuttons].color[2] = 0.7f;
+	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
+	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
+	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
+	button[nbuttons].text_color = 0x00ffffff;
+	nbuttons++;
+}
+
+
+// -----------IMAGE STRUCTURE ------------------------------------------
+
 class Image {
 public:
 	int width, height;
@@ -152,11 +183,7 @@ Image *bshipImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
 
-// -----------LOG STRUCTURE-----------------------------------------
-Queue logQueue;
 // -----------SHIP STRUCTURE------------------------------------------
-
-#define MAXSHIPS 10
 
 // original ship structure, updated and moved to thooser.h
 /*
@@ -198,9 +225,7 @@ unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
 int jason_feature = 0; // off on start up
 unsigned int game_over = 0; //off on startup
-bool dee_feature = false; //off on startup
 bool taylorFeature = false; //off on startup, turns on during ship place
-
 
 
 class X11_wrapper {
@@ -503,6 +528,7 @@ void reset_grids(void)
 		}
 	}
 	gamemode = MODE_READY;
+	taylorFeature = false;
 	nships = 0;
 }
 
@@ -516,81 +542,14 @@ void init(void)
 	//
 	//initialize buttons...
 	nbuttons=0;
-	//
-	//Quit button
-	//size and position
-	button[nbuttons].r.width = 200;
-	button[nbuttons].r.height = 50;
-	button[nbuttons].r.left = 10;
-	button[nbuttons].r.bot = 10;
-	button[nbuttons].r.right =
-		button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx =
-		(button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery =
-		(button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Quit");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.4f;
-	button[nbuttons].color[1] = 0.4f;
-	button[nbuttons].color[2] = 0.7f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
-	//
-	//Credits button
-	//size and position
-	button[nbuttons].r.width = 200;
-	button[nbuttons].r.height = 50;
-	button[nbuttons].r.left = 10;
-	button[nbuttons].r.bot = 70;
-	button[nbuttons].r.right =
-		button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx =
-		(button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery =
-		(button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Credits");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.4f;
-	button[nbuttons].color[1] = 0.4f;
-	button[nbuttons].color[2] = 0.7f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
-	//
-	//Reset button
-	//size and position
-	button[nbuttons].r.width = 200;
-	button[nbuttons].r.height = 50;
-	button[nbuttons].r.left = xres/2 - button[nbuttons].r.width/2;
-	button[nbuttons].r.bot = 50;
-	button[nbuttons].r.right =
-		button[nbuttons].r.left + button[nbuttons].r.width;
-	button[nbuttons].r.top = button[nbuttons].r.bot + button[nbuttons].r.height;
-	button[nbuttons].r.centerx =
-		(button[nbuttons].r.left + button[nbuttons].r.right) / 2;
-	button[nbuttons].r.centery =
-		(button[nbuttons].r.bot + button[nbuttons].r.top) / 2;
-	strcpy(button[nbuttons].text, "Reset Grids");
-	button[nbuttons].down = 0;
-	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.4f;
-	button[nbuttons].color[1] = 0.4f;
-	button[nbuttons].color[2] = 0.7f;
-	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
-	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
-	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
-	button[nbuttons].text_color = 0x00ffffff;
-	nbuttons++;
+	
+	// standard width = 200
+	createButton("Quit", xres - 210, 10);
+	createButton("Credits", xres - 210, 70);
+	createButton("Reset Grids", xres/2 - 100, 50);
+	createButton("Validate Ships", xres/2 - 100, 110);
+	createButton("Help", xres - 210, 130);
+
 }
 
 
@@ -600,14 +559,8 @@ void init(void)
 extern int show_dwelch();
 extern int show_jason();
 extern int show_danny();
-//extern void show_taylor();
 extern void show_cecilio();
 
-extern void showCredits(int xres, int yres, GLuint portraitTexture);
-extern void showIntro(int xres, int yres);
-extern void showGameOver(int xres, int yres);
-extern void showTeir(int xres, int yres, GLuint xTexture);
-extern void FeatureBox(int xres, int yres);
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
 
 extern void showGameOver(int xres, int yres);
@@ -634,8 +587,8 @@ void check_keys(XEvent *e)
 		case XK_Escape:
 			done=1;
 			break;
-		case XK_F1:
-			help = toggle(help);
+		case XK_q:
+			done=1;
 			break;
 		case XK_F2:
 			gamemode++;
@@ -653,28 +606,44 @@ void check_keys(XEvent *e)
 				gamemode = MODE_READY;
 			}
 			break;
+		case XK_s:
+			show_danny();
+			break;
+		case XK_g:
+			show_cecilio();
+			break;
+		case XK_d:
+			show_dwelch();
+			break;
+		case XK_t:
+			show_taylor();
+			break;
 		case XK_a:
-			//show_jason(); <--- prints jason in terminal
+		//	show_jason(); <--- prints jason in terminal
 			jason_feature = toggle(jason_feature);
-			break;
-		case XK_z:
-				logQueue.enqueue(" Parenthisis ");
-			break;
-		case XK_x:
-				logQueue.enqueue(" Exponents ");
-				logQueue.enqueue(" Multiplication ");
-				logQueue.enqueue(" Division ");
-				logQueue.enqueue(" Addition and Subtraction ");
-			break;
-		case XK_w:
-				logQueue.showQueue();
 			break;
 		case XK_c:
 			credits = !credits;
 			break;
-		case XK_d:
-			//show_dwelch(); <--- prints delaney to terminal 
-			dee_feature = !dee_feature;
+		case XK_p:
+			pause_screen = manage_state(pause_screen);
+			break;
+		case XK_F1:
+			help = toggle(help);
+			break;
+		case XK_space:
+			intro = !intro;
+			break;
+		case XK_o:
+			game_over = manage_over_state(game_over);
+			break;
+		case XK_v:
+			if (gamemode == MODE_PLACE_SHIPS)
+				//printf("\ncalling validate function...\n");
+				validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
+        break;
+		case XK_m:
+			missileType ^=1;
 			break;
 		case XK_f:
 			feature_mode = manage_state(feature_mode);
@@ -682,35 +651,6 @@ void check_keys(XEvent *e)
 				gamemode = MODE_FIND_SHIPS;
 			}
 			break;
-		case XK_g:
-			show_cecilio();
-			break;
-		case XK_i:
-			intro = !intro;
-			break;
-		case XK_m:
-			missileType ^=1;
-			break;
-		case XK_o:
-			game_over = manage_over_state(game_over);
-			break;
-		case XK_t:
-			show_taylor();
-			break;
-		case XK_p:
-			pause_screen = manage_state(pause_screen);
-			break;
-		case XK_q:
-			done=1;
-			break;
-		case XK_s:
-			show_danny();
-			break;
-		case XK_v:
-			if (gamemode == MODE_PLACE_SHIPS)
-				printf("\ncalling validate function...\n");
-				validateShips(grid1, ship, grid_dim);
-        	break;
 	}
 }
 
@@ -733,19 +673,20 @@ void mouse_click(int ibutton, int action, int x, int y)
 				}
 				if (i==1) {
 					//user clicked credits
-					if ( logQueue.isFull() )
-						logQueue.dequeue();
-					else
-					logQueue.enqueue(" Credits pressed ");
 					credits = !credits;
 				}
 				if (i==2) {
 					//user clicked reset
-					if ( logQueue.isFull() )
-						logQueue.dequeue();
-					else
-					logQueue.enqueue(" Grids Reset ");
 					reset_grids();
+				}
+				if (i==3) {
+					//user clicked validate
+					//printf("\ncalling validate function...\n");
+					validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
+				}
+				if (i==4) {
+					//user clicked help
+					help = toggle(help);
 				}
 			}
 		}
@@ -780,7 +721,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 								ship[nships].updateType();
 								printf("\t\tship %d updated! type %d\n", grid1[i][j].shipno, ship[nships].type);
 							} else {
-								if (nships < MAXSHIPS) {
+								if (nships < MAXSHIPS - 1) {
 									//new ship being placed!
 									grid1[i][j].status = 1;
 									nships++;
@@ -819,10 +760,6 @@ void mouse_click(int ibutton, int action, int x, int y)
 										nshipssunk++;
 										nbombs += 5;
 										if (nshipssunk >= nships) {
-												if ( logQueue.isFull() )
-													logQueue.dequeue();
-												else
-													logQueue.enqueue(" Game over bro ");
 											gamemode = MODE_GAMEOVER;
 										}
 									}
@@ -830,104 +767,26 @@ void mouse_click(int ibutton, int action, int x, int y)
 							}
 							if (feature_mode != 0) {
 								if (missileType != 0){
-									int radar = 0;
-									if (grid1[i][j].status) {
+									if (grid1[i + 1][j].status) {
 										int s = grid1[i][j].shipno;
-										//int s1 = grid1[i+1][j].shipno;
-										//int s2 = grid1[i-1][j].shipno;
-										//int s3 = grid1[i][j+1].shipno;
-										//int s4 = grid1[i][j-1].shipno;
+										int s1 = grid1[i+1][j].shipno;
+										int s2 = grid1[i-1][j].shipno;
+										int s3 = grid1[i][j+1].shipno;
+										int s4 = grid1[i][j-1].shipno;
 										grid2[i][j].status = 2;
-										//grid2[i+1][j].status = 2;
-										//grid2[i-1][j].status = 2;
-										//grid2[i][j+1].status = 2;
-										//grid2[i][j-1].status = 2;
-										make_particle(cent[0], cent[1], qsize);
+										grid2[i+1][j].status = 2;
+										grid2[i-1][j].status = 2;
+										grid2[i][j+1].status = 2;
+										grid2[i][j-1].status = 2;
 										{
 											//is this ship sunk?
-											if (check_for_sink(s)) {
-												radar++;
+											if (check_for_sink(s) &&
+										    	check_for_sink(s1)&&
+										    	check_for_sink(s2)&&
+										    	check_for_sink(s3)&&
+										    	check_for_sink(s4)) {
 												nshipssunk++;
 												nbombs += 5;
-												if (nshipssunk >= nships) {
-														if ( logQueue.isFull() )
-															logQueue.dequeue();
-														else
-															logQueue.enqueue(" Game over bro ");
-													gamemode = MODE_GAMEOVER;
-												}
-											}
-										}
-									}
-									if (grid1[i + 1][j].status == 1) {
-										get_grid_center(2,(i + 1),j,cent);
-										int s = grid1[i + 1][j].shipno;
-										grid2[i+1][j].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gamemode = MODE_GAMEOVER;
-												}
-											}
-										}
-									}
-									if (grid1[i - 1][j].status == 1) {
-										get_grid_center(2,(i - 1),j,cent);
-										int s = grid1[i-1][j].shipno;
-										grid2[i-1][j].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gamemode = MODE_GAMEOVER;
-												}
-											}
-										}
-									}
-									if (grid1[i][j + 1].status == 1) {
-										get_grid_center(2,i,(j + 1),cent);
-										int s = grid1[i][j + 1].shipno;
-										grid2[i][j+1].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gamemode = MODE_GAMEOVER;
-												}
-											}
-										}
-									}
-									if (grid1[i][j - 1].status == 1) {
-										get_grid_center(2,i,(j - 1),cent);
-										int s = grid1[i][j-1].shipno;
-										grid2[i][j-1].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
 												if (nshipssunk >= nships) {
 													gamemode = MODE_GAMEOVER;
 												}
@@ -937,10 +796,6 @@ void mouse_click(int ibutton, int action, int x, int y)
 								}
 							}
 							if (nbombs <= 0) {
-									if ( logQueue.isFull() )
-										logQueue.dequeue();
-									else
-										logQueue.enqueue(" Game over bro ");
 								gamemode = MODE_GAMEOVER;
 							}
 						}
@@ -1309,16 +1164,15 @@ void render(void)
 		unsigned int color = 0x00ffffdd;
 		Rect r;
 		r.left = xres/4;
-		r.bot  = yres-100;
+		r.bot  = yres-180;
 		r.center = 1;
-		ggprint16(&r, 0, color, "Grid #1");
+		ggprint16(&r, 0, color, "YOUR SHIPS");
 		r.left = xres/4*3;
-		ggprint16(&r, 0, color, "Grid #2");
+		ggprint16(&r, 0, color, "ENEMY SHIPS");
 		//
 		r.bot  = yres-50;
 		r.left = xres/2;
-		ggprint16(&r, 50, 0x0088aaff, "BATTLESHIP GAME STARTER KIT");
-		ggprint16(&r, 0, 0x0088aaff, "**PRESS F1 FOR HELP**");
+		ggprint16(&r, 50, 0x0088aaff, "CAPITAL SHIP COMBAT");
 	}
 	
 	//
@@ -1391,9 +1245,9 @@ void render(void)
 	}
 
 	if (jason_feature) {
-		feature_border(xres,yres);	// enable border	
-		log_window(xres,yres); // enable log window
-		log_print(logQueue, xres, yres);
+	
+		feature_border(xres,yres);
+		game_log(xres,yres);
 	}
 
 	if (pause_screen != 0) {
@@ -1415,15 +1269,10 @@ void render(void)
 	if (taylorFeature){
 		taylorFeatureOverlay(xres, yres);
 	}	
-	if (dee_feature) {
-		FeatureBox(xres,yres);
-		showTeir(xres, yres, xTexture);
-	}	
 
 	if (feature_mode == 1) {
 		FeatureBorder(xres, yres);
 	}
-
 
 }
 
