@@ -100,9 +100,9 @@ void createButton(const char* text, int x, int y)
 	strcpy(button[nbuttons].text, text);
 	button[nbuttons].down = 0;
 	button[nbuttons].click = 0;
-	button[nbuttons].color[0] = 0.4f;
-	button[nbuttons].color[1] = 0.4f;
-	button[nbuttons].color[2] = 0.7f;
+	button[nbuttons].color[0] = 0.8f;
+	button[nbuttons].color[1] = 0.2f;
+	button[nbuttons].color[2] = 0.2f;
 	button[nbuttons].dcolor[0] = button[nbuttons].color[0] * 0.5f;
 	button[nbuttons].dcolor[1] = button[nbuttons].color[1] * 0.5f;
 	button[nbuttons].dcolor[2] = button[nbuttons].color[2] * 0.5f;
@@ -166,22 +166,29 @@ public:
 			unlink(ppmname);
 	}
 };
-//Image img[3] = {"./x.ppm", "./explosion.ppm", "./bship.ppm"};
-
-Image img[5] = {"./x.png", "./explosion.png", "./bship.png", "./portraitPlaceholder.png", "./capitalshipcombat.png"};
+Image img[6] = {"./x.png", 
+	"./explosion.png", 
+	"./background.png",
+	"./portraitPlaceholder.png", 
+	"./capitalshipcombat.png",
+	"./logo.png"};
 
 //
 //
 GLuint xTexture;
 GLuint explosionTexture;
-GLuint bshipTexture;
+GLuint bgTexture;
 GLuint portraitTexture;
 GLuint capitalTexture;
+GLuint logoTexture;
+GLuint logo2Texture;
 Image *xImage = NULL;
 Image *explosionImage = NULL;
-Image *bshipImage = NULL;
+Image *bgImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
+Image *logoImage = NULL;
+Image *logo2Image = NULL;
 
 // -----------SHIP STRUCTURE------------------------------------------
 
@@ -440,27 +447,23 @@ void init_opengl(void)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//
 	glEnable(GL_TEXTURE_2D);
-	//Htexture = loadBMP("H.bmp");
-	//Vtexture = loadBMP("V.bmp");
-	//bshipTexture = loadBMP("bship.bmp");
-	//
-	//load the images file into a ppm structure.
-	//
-//	xImage          = ppm6GetImage("./x.ppm");
-//	explosionImage  = ppm6GetImage("./explosion.ppm");
-//	bshipImage      = ppm6GetImage("./bship.ppm");
+
 	xImage          = &img[0];
 	explosionImage  = &img[1];
-	bshipImage      = &img[2];
+	bgImage     	= &img[2];
 	portraitImage 	= &img[3];
 	capitalImage 	= &img[4];
+	logoImage		= &img[5];
+
 	//
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
 	glGenTextures(1, &explosionTexture);
-	glGenTextures(1, &bshipTexture);
+	glGenTextures(1, &bgTexture);
 	glGenTextures(1, &portraitTexture);
 	glGenTextures(1, &capitalTexture);
+	glGenTextures(1, &logoTexture);
+
 	//
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -482,14 +485,14 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, explosionImage->data);
 	//-------------------------------------------------------------------------
-	//bship
-	w = bshipImage->width;
-	h = bshipImage->height;
-	glBindTexture(GL_TEXTURE_2D, bshipTexture);
+	//background
+	w = bgImage->width;
+	h = bgImage->height;
+	glBindTexture(GL_TEXTURE_2D, bgTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-								GL_RGB, GL_UNSIGNED_BYTE, bshipImage->data);
+								GL_RGB, GL_UNSIGNED_BYTE, bgImage->data);
 	//-------------------------------------------------------------------------
 	//portrait
 	w = portraitImage->width;
@@ -501,7 +504,7 @@ void init_opengl(void)
 								GL_RGB, GL_UNSIGNED_BYTE, portraitImage->data);
 	//-------------------------------------------------------------------------
 
-	//portrait
+	//intro
 	w = capitalImage->width;
 	h = capitalImage->height;
 	glBindTexture(GL_TEXTURE_2D, capitalTexture);
@@ -510,7 +513,16 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
 	//-------------------------------------------------------------------------
-
+	
+	//logo
+	w = logoImage->width;
+	h = logoImage->height;
+	glBindTexture(GL_TEXTURE_2D, logoTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, logoImage->data);
+	//-------------------------------------------------------------------------
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
@@ -1075,12 +1087,12 @@ void render(void)
 	glColor3f(0.8f, 0.6f, 0.2f);
 	//
 	//show screen background...
-	glBindTexture(GL_TEXTURE_2D, bshipTexture);
-	glColor3f(0.2f, 0.2f, 0.6f);
+	glBindTexture(GL_TEXTURE_2D, bgTexture);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f);  glVertex2i(0,    0);
-		glTexCoord2f(0.0f, 0.25f); glVertex2i(0,    yres);
-		glTexCoord2f(1.0f, 0.25f); glVertex2i(xres, yres);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(0,    yres);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(xres, yres);
 		glTexCoord2f(1.0f, 1.0f);  glVertex2i(xres, 0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1097,7 +1109,7 @@ void render(void)
 			for (j=0; j<grid_dim; j++) {
 				get_grid_center(1,i,j,cent);
 				//glColor3f(0.5f, 0.1f, 0.1f);
-				glColor4f(0.3f, 1.0f, 0.3f, 0.5f);
+				glColor4f(0.3f, 1.0f, 0.9f, 0.6f);
 				if (grid1[i][j].over) {
 					glColor3f(1.0f, 1.0f, 0.0f);
 				}
@@ -1131,7 +1143,7 @@ void render(void)
 		for (j=0; j<grid_dim; j++) {
 			get_grid_center(2,i,j,cent);
 			//glColor3f(0.6f, 0.4f, 0.1f);
-			glColor4f(1.0f, 0.8f, 0.5f, 0.6f);
+			glColor4f(1.0f, 0.5f, 0.5f, 0.6f);
 			if (grid2[i][j].over) {
 				glColor3f(1.0f, 1.0f, 0.0f);
 			}
@@ -1173,37 +1185,39 @@ void render(void)
 		r.bot  = yres-50;
 		r.left = xres/2;
 		ggprint16(&r, 50, 0x0088aaff, "CAPITAL SHIP COMBAT");
+		
 	}
+	
 	
 	//
 	r.left = 4;
-	r.bot  = 200;
+	r.bot  = 100;
 	r.center = 0;
 	switch(gamemode) {
 		case MODE_READY:
-			ggprint16(&r, 0, 0x00ffffff, "Press F2 to place ships!");
+			ggprint16(&r, 0, 0x00000000, "Press F2 to place ships!");
 			break;
 		case MODE_PLACE_SHIPS:
-			ggprint16(&r, 0, 0x00ffffff,
+			ggprint16(&r, 0, 0x00000000,
 				"Press F2 when finished placing ships.");
 			break;
 		case MODE_FIND_SHIPS:
-			ggprint16(&r, 0, 0x00ffffff, "Search for ships on grid!");
+			ggprint16(&r, 0, 0x00000000, "Search for ships on grid!");
 			break;
 		case MODE_GAMEOVER:
-			ggprint16(&r, 0, 0x00ffffff, "Game over!");
+			ggprint16(&r, 0, 0x00000000, "Game over!");
 			break;
 	}
 	r.left = 4;
-	r.bot  = 180;
+	r.bot  = 80;
 	r.center = 0;
-	ggprint16(&r, 20, 0x00ffff00, "Press M to toggle missile type!");
+	ggprint16(&r, 20, 0x00000000, "Press M to toggle missile type!");
 	r.left = 4;
-	r.bot  = 160;
+	r.bot  = 60;
 	r.center = 0;
-	ggprint16(&r, 20, 0x00ffff00, "nships placed: %i",nships);
-	ggprint16(&r, 20, 0x00ffff00, "nships sunk: %i",nshipssunk);
-	ggprint16(&r, 20, 0x00ffff00, "nbombs left: %i",nbombs);
+	ggprint16(&r, 20, 0x00000000, "nships placed: %i",nships);
+	ggprint16(&r, 20, 0x00000000, "nships sunk: %i",nshipssunk);
+	ggprint16(&r, 20, 0x00000000, "nbombs left: %i",nbombs);
 	
 	if (credits) { // put before buttons to allow button presses during credits
 		showCredits(xres, yres, portraitTexture);
@@ -1243,6 +1257,23 @@ void render(void)
 		ggprint16(&r, 0, button[i].text_color, button[i].text);
 
 	}
+	
+	// logo on top of scree
+	// FIX: logotexture isnt loading properly. other textures work fine
+		int w = 200;
+		int h = 80;
+		glBindTexture(GL_TEXTURE_2D, logoTexture);
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);
+			glVertex2f(xres/2-w, yres-80-h);
+			glTexCoord2f(0.0f, 0.0f);
+			glVertex2f(xres/2-w, yres-80+h);
+			glTexCoord2f(1.0f, 0.0f);
+			glVertex2f(xres/2+w, yres-80+h);
+			glTexCoord2f(1.0f, 1.0f);
+			glVertex2f(xres/2+w, yres-80-h);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (jason_feature) {
 	
