@@ -11,11 +11,6 @@
 
 extern class ShipClass ShipClass;
 
-#define MAXGRID 16
-//extern const int MAXGRID;
-
-#define MAXSHIPS 10
-
 // ship constructor
 Ship::Ship()
 {
@@ -32,19 +27,23 @@ void show_taylor()
 
 // checks # of ships and shapes are valid
 // TODO: apply texture over valid ships
-void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
+void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships)
 {
-	int validated[MAXSHIPS];
+	int validated[MAXSHIPS] = { 0 };
 	int v = 0;
+	int toDelete[MAXSHIPS] = { 0 };
+	int d = 0;
 	int curShip;
 	bool repairExists = false;
 	bool planetExists = false;
 	
-	for (int i = 0 ; i < grid_dim; i++){
-		for (int j = 0; j < grid_dim; j++){
+	for (int i = 0 ; i < GRIDDIM; i++){
+		for (int j = 0; j < GRIDDIM; j++){
 			
 			if (grid[i][j].status == 1){ //if ship exists at location
 				curShip = grid[i][j].shipno;
+				//printf("\tcurShip = %d\n", curShip);
+				
 				// if ship not already validated
 				if (std::find(validated, validated+MAXSHIPS, curShip) == validated+MAXSHIPS){
 					
@@ -110,10 +109,8 @@ void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
 						
 					if (ship[curShip].type == SHIP_INVALID){
 						printf("\t\t!!SHIP %d INVALID!!\n", grid[i][j].shipno);
-						// delete ship
-						// all grids whos shipno = curship:
-							//set grid shipno = 0
-							//set grid status = 0
+						toDelete[d] = curShip;
+						d++;
 					}else{
 						printf("\t\tship %d valid! orientation = %d\n", curShip, ship[curShip].orientation);
 					}
@@ -121,16 +118,42 @@ void validateShips(Grid grid[][MAXGRID], Ship ship[], int grid_dim)
 			}
 		}
 	}
+	
+	// delete ships in delete list
+	for (int i = 0 ; i < MAXSHIPS; i++){
+		if (toDelete[i] != 0){
+			deleteShip(grid, ship, GRIDDIM, toDelete[i], nships);
+			printf("\n\tShip %d deleted, ship %d renamed to %d\n", toDelete[i], nships, toDelete[i]);
+		}
+	}
+	
 }
 
-// deletes ship
-void deleteShip(Grid grid[][MAXGRID], Ship ship[])
+// deletes given ship, called by validateShips()
+void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nships)
 {
-	 //all grids whos shipno = curship:
-		//set grid shipno = 0
-		//set grid status = 0
+	//update grid
+	for (int i = 0; i < GRIDDIM; i++){
+		for (int j = 0; j < GRIDDIM; j++){
+			// delete given ship from grid
+			if (grid[i][j].shipno == curShip){
+				grid[i][j].shipno = 0;
+				grid[i][j].status = 0;
+				//printf("ship %d found, setting (%d, %d) to default/n", curShip, i, j);
+			}
+			// recycle ship
+			else if ((grid[i][j].shipno = nships) and curShip != nships){
+				grid[i][j].shipno = curShip;
+				//printf("ship %d found, setting (%d, %d) to default\n", nships, i, j);
+			}
+			
+			
+		}
+	}
+	//recycle ship
+	ship[curShip] = ship[nships];
+	nships -= 1;
 }
-
 
 // overlay during ship placement phase
 void taylorFeatureOverlay(int xres, int yres)
@@ -171,7 +194,6 @@ void taylorFeatureOverlay(int xres, int yres)
 // credits overlay with 128x128 pixel images
 void showCredits(int xres, int yres, GLuint portraitTexture)
 {
-	
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -296,6 +318,4 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	
 }
