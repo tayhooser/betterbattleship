@@ -27,18 +27,22 @@ void show_taylor()
 
 // checks # of ships and shapes are valid
 // TODO: apply texture over valid ships
-void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships, int shipTotals[])
+bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships, int shipTotals[])
 {
 	int validated[MAXSHIPS] = { 0 };
 	int v = 0;
 	int toDelete[MAXSHIPS] = { 0 };
 	int d = 0;
 	
+	for (int i = 0; i < 4; i++){
+		shipTotals[i] = 0;
+	}
+	
 	// num of each ship type
-	int attack = 0;
-	int capital = 0;
-	int repair = 0;
-	int planet = 0;
+	int attack = 0; // shipTotals[0]
+	int capital = 0; // shipTotals[1]
+	int repair = 0; // shipTotals[2]
+	int planet = 0; // shipTotals[3]
 	
 	int curShip;
 	
@@ -68,8 +72,10 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 					if (ship[curShip].type == SHIP_ATTACK){
 						if (grid[i][j+1].shipno == curShip){
 							ship[curShip].orientation = 0; //horizontal
+							shipTotals[0] += 1;
 						}else if (grid[i+1][j].shipno == curShip){
 							ship[curShip].orientation = 1; //vetical
+							shipTotals[0] += 1;
 						}else{
 							ship[curShip].type = SHIP_INVALID;
 						}
@@ -79,24 +85,26 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 						if ((grid[i][j+1].shipno == curShip) and 
 							 grid[i][j+2].shipno == curShip){
 							ship[curShip].orientation = 0; //horizontal
+							shipTotals[1] += 1;
 						}else if ((grid[i+1][j].shipno == curShip) and
 								  (grid[i+2][j].shipno == curShip)){
 							ship[curShip].orientation = 1; //vetical
+							shipTotals[1] += 1;
 						}else{
 							ship[curShip].type = SHIP_INVALID;
 						}
 					
 					// repair : 1x1 ONLY 1
 					}else if (ship[curShip].type == SHIP_REPAIR){
-						if (repair < 1){
+						if (shipTotals[2] < 1){
 							ship[curShip].type = SHIP_INVALID;
 						}else{
-							repair = 1;
+							shipTotals[2] = 1;;
 						}
 						
 					// planet : 3x3 ONLY 1
 					}else if (ship[curShip].type == SHIP_PLANET){
-						if (planet < 1 and
+						if (shipTotals[3] < 1 and
 						   (grid[i][j+1].shipno == curShip) and
 						   (grid[i][j+2].shipno == curShip) and
 						   (grid[i+1][j+0].shipno == curShip) and
@@ -105,7 +113,7 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 						   (grid[i+2][j].shipno == curShip) and
 						   (grid[i+2][j+1].shipno == curShip) and
 						   (grid[i+2][j+2].shipno == curShip)){
-							planet = 1;
+							shipTotals[3] = 1;
 						}else{
 							ship[curShip].type = SHIP_INVALID;
 						}
@@ -131,6 +139,13 @@ void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 			printf("\n\tShip %d deleted, ship %d renamed to %d\n", toDelete[i], nships, toDelete[i]);
 		}
 	}
+	
+	if ((shipTotals[2] == 1)
+		&& (shipTotals[3] == 1)
+		&& (shipTotals[0] + shipTotals[1] >= MAXSHIPS - 1)){
+			return true;
+	}
+	return false;
 	
 }
 

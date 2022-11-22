@@ -69,7 +69,7 @@ extern void show_taylor();
 
 extern void showCredits(int xres, int yres, GLuint portraitTexture);
 
-extern void validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIP, int nships, int shipTotals[]);
+extern bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIP, int nships, int shipTotals[]);
 
 extern void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nships);
 
