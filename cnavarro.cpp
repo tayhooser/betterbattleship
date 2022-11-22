@@ -30,12 +30,15 @@ void showIntro(int xres, int yres, GLuint capitalTexture)
 		glVertex2f(xres, yres);
 		glVertex2f(xres, 0);
 	glEnd();
+	
+
 	r.left = xcent;
 	r.bot  = ycent + 80;
 	r.center = 50;
 	ggprint16(&r, 50, 0xffffffff, "Hello");
 	ggprint16(&r, 50, 0xffffffff, "Press: 'I' to continue");
 	//ggprint16(&r, 50, 0xffffffff, "Press: 'F1' for help screen");
+
 	
 	//Display img
 	imgx = xcent;
@@ -46,12 +49,17 @@ void showIntro(int xres, int yres, GLuint capitalTexture)
                 glTexCoord2f(0.0f, 1.0f);
                 glVertex2f(0, 0);
                 glTexCoord2f(0.0f, 0.0f);
-                glVertex2f(0, ycent);
+                glVertex2f(0, ycent*2);
                 glTexCoord2f(1.0f, 0.0f);
-                glVertex2f(xcent, ycent);
+                glVertex2f(xcent*2, ycent*2);
                 glTexCoord2f(1.0f, 1.0f);
-                glVertex2f(xcent, 0);
+                glVertex2f(xcent*2, 0);
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
+	
+	r.left = xcent;
+	r.bot  = 70;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, "Press spacebar to begin");
 	
 }
