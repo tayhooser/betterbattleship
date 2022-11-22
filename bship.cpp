@@ -295,7 +295,7 @@ public:
 	void set_title() {
 		//Set the window title bar.
 		XMapWindow(dpy, win);
-		XStoreName(dpy, win, "CS335 - OpenGL Animation Template Under XWindows");
+		XStoreName(dpy, win, "CS3350 - Capital Ship Combat");
 	}
 	void setup_screen_res(const int w, const int h) {
 		xres = w;
@@ -427,15 +427,6 @@ unsigned char *buildAlphaData(Image *img)
 		*(ptr+0) = a;
 		*(ptr+1) = b;
 		*(ptr+2) = c;
-		//get largest color component...
-		//*(ptr+3) = (unsigned char)((
-		//		(int)*(ptr+0) +
-		//		(int)*(ptr+1) +
-		//		(int)*(ptr+2)) / 3);
-		//d = a;
-		//if (b >= a && b >= c) d = b;
-		//if (c >= a && c >= b) d = c;
-		//*(ptr+3) = d;
 		*(ptr+3) = (a|b|c);
 		ptr += 4;
 		data += 3;
@@ -535,8 +526,8 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, logoImage->data);
 	//-------------------------------------------------------------------------
+	
 	glBindTexture(GL_TEXTURE_2D, 0);
-	//printf("tex: %i %i\n",Htexture,Vtexture);
 }
 
 void reset_grids(void)
@@ -554,6 +545,10 @@ void reset_grids(void)
 	gamemode = MODE_READY;
 	taylorFeature = false;
 	nships = 0;
+	nbombs = 0;
+	ntbombs = 0;
+	shipsValid = false;
+
 }
 
 void init(void)
@@ -573,6 +568,8 @@ void init(void)
 	createButton("Reset Grids", xres/2 - 100, 50);
 	createButton("Validate Ships", xres/2 - 100, 110);
 	createButton("Help", xres - 210, 130);
+	createButton("Place ships", 100, 140);
+	createButton("Find ships", 100, 140);
 
 }
 
@@ -714,6 +711,25 @@ void mouse_click(int ibutton, int action, int x, int y)
 					//user clicked help
 					help = toggle(help);
 				}
+				if (i==5 || i==6) {
+					//user clicked find/place
+					gamemode++;
+					taylorFeature = false;
+					feature_mode = 0;
+					if (gamemode == MODE_PLACE_SHIPS){
+						gamemodeButton = "Find ships";
+						taylorFeature = true;
+					}
+					if (gamemode == MODE_FIND_SHIPS) {
+						feature_mode = 1;
+						nshipssunk = 0;
+						nbombs = 4 * shipTotals[0];
+						ntbombs = 2 * shipTotals[1];
+					}
+					if (gamemode > MODE_GAMEOVER) {
+						gamemode = MODE_READY;
+					}
+				}
 			}
 		}
 		
@@ -745,8 +761,8 @@ void mouse_click(int ibutton, int action, int x, int y)
 								ship[nships].size += 1;
 								ship[nships].updateType();
 								int prevship = 0;
-								printf("\t\tship %d updated! type %d\n", grid1[i][j].shipno, ship[nships].type);
-								if (ship[nships].type == 3 && prevship != grid1[i][j].shipno){
+								//printf("\t\tship %d updated! type %d\n", grid1[i][j].shipno, ship[nships].type);
+								if (ship[nships].type == 1 && prevship != grid1[i][j].shipno){
 									ntbombs++;
 									prevship = grid1[i][j].shipno;
 								}
@@ -1168,8 +1184,6 @@ void render(void)
 	int i,j;
 	Rect r;
 	//--------------------------------------------------------
-	//This code is repeated several times in this program, so
-	//it can be made more generic and cleaner with some work.
 	int b2 = board_dim/2;
 	int screen_center[2] = {xres/2, yres/2};
 	int s0 = screen_center[0];
@@ -1339,16 +1353,38 @@ void render(void)
 	//draw all buttons
 	//
 	for (i=0; i<nbuttons; i++) {
-		if (button[i].over) {
-			glColor3f(1.0f, 0.0f, 0.0f);
-			//draw a highlight around button
-			glLineWidth(2);
-			glBegin(GL_LINE_LOOP);
-				glVertex2i(button[i].r.left-2,  button[i].r.bot-2);
-				glVertex2i(button[i].r.left-2,  button[i].r.top+2);
-				glVertex2i(button[i].r.right+2, button[i].r.top+2);
-				glVertex2i(button[i].r.right+2, button[i].r.bot-2);
-				glVertex2i(button[i].r.left-2,  button[i].r.bot-2);
+		if (i == 3 && gamemode != MODE_PLACE_SHIPS){
+			// do not draw validate button
+		}else if (i == 5 && gamemode != MODE_READY){
+			// do not draw place button
+		}else if (i == 6 && gamemode != MODE_PLACE_SHIPS){
+			// do not draw find button
+		}else if (i == 6 && shipsValid == false){
+			// do not draw find button
+		}else{
+			if (button[i].over) {
+				glColor3f(1.0f, 0.0f, 0.0f);
+				//draw a highlight around button
+				glLineWidth(2);
+				glBegin(GL_LINE_LOOP);
+					glVertex2i(button[i].r.left-2,  button[i].r.bot-2);
+					glVertex2i(button[i].r.left-2,  button[i].r.top+2);
+					glVertex2i(button[i].r.right+2, button[i].r.top+2);
+					glVertex2i(button[i].r.right+2, button[i].r.bot-2);
+					glVertex2i(button[i].r.left-2,  button[i].r.bot-2);
+				glEnd();
+				glLineWidth(1);
+			}
+			if (button[i].down) {
+				glColor3fv(button[i].dcolor);
+			} else {
+				glColor3fv(button[i].color);
+			}
+			glBegin(GL_QUADS);
+				glVertex2i(button[i].r.left,  button[i].r.bot);
+				glVertex2i(button[i].r.left,  button[i].r.top);
+				glVertex2i(button[i].r.right, button[i].r.top);
+				glVertex2i(button[i].r.right, button[i].r.bot);
 			glEnd();
 			glLineWidth(1);
 		}
@@ -1371,19 +1407,20 @@ void render(void)
 	}
 	
 	// logo on top of scree
-	// FIX: logotexture isnt loading properly. other textures work fine
+	// FIX: logotexture isnt loading properly. other images work fine
+	// POSSIBLE FIX: add more colors to image. currently only 2 colors
 		int w = 200;
 		int h = 80;
 		glBindTexture(GL_TEXTURE_2D, logoTexture);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(xres/2-w, yres-80-h);
+			glVertex2f(xres/2-w, yres-90-h);
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(xres/2-w, yres-80+h);
+			glVertex2f(xres/2-w, yres-90+h);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(xres/2+w, yres-80+h);
+			glVertex2f(xres/2+w, yres-90+h);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(xres/2+w, yres-80-h);
+			glVertex2f(xres/2+w, yres-90-h);
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
