@@ -7,12 +7,14 @@
 #include <unistd.h>
 #include <cstring>
 #include <GL/glx.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
 #include "fonts.h"
 #include "dwelch.h"
 
 
 // ----- resizing and tinkering teirs
-	#define MXGRD 16
+	#define MXGRD 50
 	#define GRDDM 10
 	#define NGRDS 6
 
@@ -167,6 +169,7 @@ void get_grid_center(const int t, const int g, const int i, const int j, int xre
 	cent[1] += (bq * i);
 }
 
+void drawGrid();
 void showTeir(int xres, int yres, GLuint xTexture)
 {
 //	glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
@@ -174,22 +177,22 @@ void showTeir(int xres, int yres, GLuint xTexture)
 	int cent[2];
 	int xcent = xres / 2;		
 	int ycent = yres / 2;	
-	int w = 10;
-	int h = 10;
+	int width = 10;
+	int height = 10;
 
 	//tester init matrices 
 	//not sure if this will do anything I want it to 
 	//tbd
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//this sets to 2D mode (no perspective)
 	glOrtho(0, xres, 0, yres, -1, 1);
 	glColor3f(0.8f, 0.6f, 0.2f);
 	//
 
-
+	drawGrid();
 	//draw grid left #1
 		// ...each grid square is drawn
 		//
@@ -223,14 +226,28 @@ void showTeir(int xres, int yres, GLuint xTexture)
 
 					glBegin(GL_QUADS);
 
-					//			glTexCoord2f(0.0f, 0.0f);
-					glVertex2f(cent[0]-w+i, cent[1]-h+j);
-					//			glTexCoord2f(0.0f, 0.2f);
-					glVertex2f(cent[0]-w+i, cent[1]+h-j);
-					//			glTexCoord2f(1.0f, 0.0f);
-					glVertex2f(cent[0]+w-i, cent[1]+h-j);
-					//			glTexCoord2f(1.0f, 0.2f);
-					glVertex2f(cent[0]+w-i, cent[1]-h+j);
+					glTexCoord2i(0.0f, 0.0f);
+					glVertex2f(cent[0]-width+i, cent[1]-height+j);
+					glTexCoord2i(0.0f, 1.0f);
+					glVertex2f(cent[0]-width+i, cent[1]+height-j);
+					glTexCoord2i(1.0f, 1.0f);
+					glVertex2f(cent[0]+width-i, cent[1]+height-j);
+					glTexCoord2i(1.0f, 0.0f);
+					glVertex2f(cent[0]+width-i, cent[1]-height+j);
+					glEnd();
+					glBindTexture(GL_TEXTURE_2D, 0);
+
+
+					glBegin(GL_QUADS);
+
+					glTexCoord2i(0.0f, 0.0f);
+					glVertex2f(cent[0]-15, cent[1]-15);
+					glTexCoord2i(0.0f, 1.0f);
+					glVertex2f(cent[0]-15, cent[1]+15);
+					glTexCoord2i(1.0f, 1.0f);
+					glVertex2f(cent[0]+15, cent[1]+15);
+					glTexCoord2i(1.0f, 0.0f);
+					glVertex2f(cent[0]+15, cent[1]-15);
 					glEnd();
 					glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -315,7 +332,42 @@ void showTeir(int xres, int yres, GLuint xTexture)
 		}
 	}
 }
-//credits and creditibility 
+//credits and creditibility
+void single(float, float);
+void drawGrid()
+{
+
+	for (int x=0; x<20; x+=10){
+		for (int y=0; y<20; y+=10){
+			single(100+x, 100+y);
+			single(130+x, 100+y);
+			single(160+x, 100+y);
+			single(190+x, 100+y);
+			single(220+x, 100+y);
+			single(250+x, 100+y);
+			single(280+x, 100+y);
+			single(310+x, 100+y);
+			single(340+x, 100+y);
+			single(370+x, 100+y);
+			single(400+x, 100+y);
+			single(430+x, 100+y);
+			single(460+x, 100+y);
+			single(490+x, 100+y);
+		}
+	}
+}
+void single(float x, float y)
+{
+	glColor3f(125.0,10.0,10.0);
+	glBegin(GL_QUADS);
+		glVertex2f(x,y);
+		glVertex2f(x+10,y);
+		glVertex2f(x+10,y+10);
+		glVertex2f(x,y+10);
+
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
 void deeCred(int xres, int yres)
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
