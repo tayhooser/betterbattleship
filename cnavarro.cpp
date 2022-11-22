@@ -7,9 +7,36 @@ void show_cecilio()
 	printf ("Cecilio\n");
 }
 
-unsigned int showIntro(unsigned int s) {
+unsigned int cecilio_feature(unsigned int s) {
 	s = s ^ 1;
 	return s;
+}
+
+void cecilio_feature(int xres, int yres) {
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor3f(1.0, 0.0, 0.0);
+	glColor4f(1.0, 0.0, 0.0, 0.5);
+	int w = 20;
+	glBegin(GL_TRIANGLE_STRIP);
+		glVertex2f(0, 0);
+		glVertex2f(0+w, w);
+
+		glVertex2f(0, yres);
+		glVertex2f(0+w, yres-w);
+
+		glVertex2f(xres, yres);
+		glVertex2f(xres-w, yres-w);
+		
+		glVertex2f(xres, 0);
+		glVertex2f(xres-w, w);
+
+		glVertex2f(0, 0);
+		glVertex2f(0+w, w);
+
+	glEnd();
+	glDisable(GL_BLEND);
+
 }
 
 void showIntro(int xres, int yres, GLuint capitalTexture)
@@ -63,3 +90,4 @@ void showIntro(int xres, int yres, GLuint capitalTexture)
 	ggprint16(&r, 50, 0xffffffff, "Press spacebar to begin");
 	
 }
+
