@@ -11,10 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-using namespace std;
-
-#include <string>
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
@@ -90,7 +86,7 @@ int nbuttons=0;
 
 void createButton(const char* text, int x, int y)
 {
-	button[nbuttons].r.width = 170;
+	button[nbuttons].r.width = 200;
 	button[nbuttons].r.height = 50;
 	button[nbuttons].r.left = x;
 	button[nbuttons].r.bot = y;
@@ -113,8 +109,6 @@ void createButton(const char* text, int x, int y)
 	button[nbuttons].text_color = 0x00ffffff;
 	nbuttons++;
 }
-
-string gamemodeButton = "Place ships";
 
 
 // -----------IMAGE STRUCTURE ------------------------------------------
@@ -196,6 +190,10 @@ Image *capitalImage = NULL;
 Image *logoImage = NULL;
 Image *logo2Image = NULL;
 
+// -----------LOG  STRUCTURE------------------------------------------
+
+Queue logQueue;
+
 // -----------SHIP STRUCTURE------------------------------------------
 
 // original ship structure, updated and moved to thooser.h
@@ -212,8 +210,6 @@ typedef struct t_ship {
 class Ship Ship;
 class Ship ship[MAXSHIPS];
 
-int planetID = 0;
-
 int shipTotals[] = {0};
 // shipTotals[0] = attack
 // shipTotals[1] = capital
@@ -222,15 +218,11 @@ int shipTotals[] = {0};
 
 int nships=0;
 int nshipssunk=0;
-
 int nbombs=0;
 int ntbombs = 0;
-int prev_ntbombs = 100;
+
 int missileType = 0;
-
 int feature_mode = 0;
-
-bool shipsValid = false;
 
 //
 //modes:
@@ -245,17 +237,14 @@ enum {
 	MODE_GAMEOVER
 };
 
-string gameOver = "You lose!";
-
 static int gamemode=0;
 bool credits = false; //off on startup
 bool intro = true; // plays on startup
 unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
-int jason_feature = 0; // off on start up
+int jason_feature = 1; // on by default on start up
 unsigned int game_over = 0; //off on startup
 bool taylorFeature = false; //off on startup, turns on during ship place
-bool cecilioFeature = false;
 
 
 class X11_wrapper {
@@ -559,6 +548,7 @@ void reset_grids(void)
 	nbombs = 0;
 	ntbombs = 0;
 	shipsValid = false;
+
 }
 
 void init(void)
@@ -576,11 +566,11 @@ void init(void)
 	createButton("Quit", xres - 210, 10);
 	createButton("Credits", xres - 210, 70);
 	createButton("Reset Grids", xres/2 - 100, 50);
-	createButton("Validate Ships", 330, 140);
+	createButton("Validate Ships", xres/2 - 100, 110);
 	createButton("Help", xres - 210, 130);
-	//createButton(gamemodeButton.c_str(), 100, 140);
 	createButton("Place ships", 100, 140);
 	createButton("Find ships", 100, 140);
+
 }
 
 
@@ -591,11 +581,10 @@ extern int show_dwelch();
 extern int show_jason();
 extern int show_danny();
 extern void show_cecilio();
-extern void cecilio_feature(int xres, int yres);
 
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
 
-extern void showGameOver(int xres, int yres, string gameOver);
+extern void showGameOver(int xres, int yres);
 
 void check_keys(XEvent *e)
 {
@@ -632,8 +621,7 @@ void check_keys(XEvent *e)
 			if (gamemode == MODE_FIND_SHIPS) {
 				feature_mode = 1;
 				nshipssunk = 0;
-				nbombs = 4 * shipTotals[0];
-				ntbombs = 2 * shipTotals[1];
+				nbombs = 10;
 			}
 			if (gamemode > MODE_GAMEOVER) {
 				gamemode = MODE_READY;
@@ -643,8 +631,7 @@ void check_keys(XEvent *e)
 			show_danny();
 			break;
 		case XK_g:
-			//show_cecilio();
-			cecilioFeature = !cecilioFeature;
+			show_cecilio();
 			break;
 		case XK_d:
 			show_dwelch();
@@ -658,6 +645,8 @@ void check_keys(XEvent *e)
 			break;
 		case XK_c:
 			credits = !credits;
+			if ( jason_feature )
+			   	jason_feature = toggle(jason_feature);
 			break;
 		case XK_p:
 			pause_screen = manage_state(pause_screen);
@@ -666,11 +655,16 @@ void check_keys(XEvent *e)
 			help = toggle(help);
 			break;
 		case XK_space:
-			intro = !intro;
+			intro = false;
 			break;
 		case XK_o:
 			game_over = manage_over_state(game_over);
 			break;
+		case XK_v:
+			if (gamemode == MODE_PLACE_SHIPS)
+				//printf("\ncalling validate function...\n");
+				validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
+        break;
 		case XK_m:
 			missileType ^=1;
 			break;
@@ -711,12 +705,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 				if (i==3) {
 					//user clicked validate
 					//printf("\ncalling validate function...\n");
-					shipsValid = validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
-					
-					for (int i = 0; i < nships; i++){
-						if (ship[i].type == 3)
-							planetID = i;
-					}
+					validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
 				}
 				if (i==4) {
 					//user clicked help
@@ -757,7 +746,6 @@ void mouse_click(int ibutton, int action, int x, int y)
 						y <= cent[1]+qsize) {
 						
 						// if user clicked in left grid
-						// TODO: recycle ships
 						if (ibutton == 1) {
 							//does this quad have any connecting quads?
 							if (nships != 0){
@@ -806,35 +794,36 @@ void mouse_click(int ibutton, int action, int x, int y)
 						
 						// if user clicked in right grid
 						if (ibutton == 1) {
-							if (missileType != 0 && ntbombs > 0)
+							if (missileType != 0 && ntbombs > 0) {
 								ntbombs--;
-							else {
-								missileType = 0;
+							} else {
+							    	missileType = 0;
 								nbombs--;
 							}
-							if (grid1[i][j].status && missileType == 0) {
+							if (grid1[i][j].status) {
 								int s = grid1[i][j].shipno;
 								grid2[i][j].status = 2;
+								logQueue.enqueue("Ship hit");
 								if (feature_mode)
 									make_particle(cent[0], cent[1], qsize);
 								{
 									//is this ship sunk?
 									if (check_for_sink(s)) {
-										nshipssunk++;
+									    	nshipssunk++;
 										nbombs += 5;
 										if (nshipssunk >= nships) {
-											gameOver = "You win!";
-											gamemode = MODE_GAMEOVER;
-										}else if (ship[planetID].status == 2){
-											gameOver = "You win!";
-											gamemode = MODE_GAMEOVER;
-										} 
+											logQueue.enqueue("Game Over");
+										    	gamemode = MODE_GAMEOVER;
+										}
 									}
 								}
+							} else {
+							    logQueue.enqueue("You missed");
 							}
+							if ( nbombs == 1 ) 
+							    logQueue.enqueue("Last bomb");
 							if (feature_mode != 0) {
-								if (missileType != 0 && ntbombs != prev_ntbombs){
-									prev_ntbombs = ntbombs;
+								if (missileType != 0 && ntbombs > 0){
 									int radar = 0;
 									if (grid1[i][j].status) {
 										int s = grid1[i][j].shipno;
@@ -855,6 +844,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 												nshipssunk++;
 												nbombs += 5;
 												if (nshipssunk >= nships) {
+													logQueue.enqueue("Game Over");
 													gamemode = MODE_GAMEOVER;
 												}
 											}
@@ -874,6 +864,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 												}
 												radar++;
 												if (nshipssunk >= nships) {
+													logQueue.enqueue("Game Over");
 													gamemode = MODE_GAMEOVER;
 												}
 											}
@@ -893,6 +884,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 												}
 												radar++;
 												if (nshipssunk >= nships) {
+													logQueue.enqueue("Game Over");
 													gamemode = MODE_GAMEOVER;
 												}
 											}
@@ -912,6 +904,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 												}
 												radar++;
 												if (nshipssunk >= nships) {
+													logQueue.enqueue("Game Over");
 													gamemode = MODE_GAMEOVER;
 												}
 											}
@@ -930,6 +923,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 												}
 												radar++;
 												if (nshipssunk >= nships) {
+													logQueue.enqueue("Game Over");
 													gamemode = MODE_GAMEOVER;
 												}
 											}
@@ -937,7 +931,8 @@ void mouse_click(int ibutton, int action, int x, int y)
 									}
 								}
 							}
-							if (nbombs <= 0 && ntbombs <=0) {
+							if (nbombs <= 0) {
+								logQueue.enqueue("Game Over");
 								gamemode = MODE_GAMEOVER;
 							}
 						}
@@ -1147,6 +1142,8 @@ int check_for_sink(int s)
 			}
 		}
 	}
+	if ( sunk )
+	    logQueue.enqueue("Ship sunk");
 	return sunk;
 }
 
@@ -1389,11 +1386,23 @@ void render(void)
 				glVertex2i(button[i].r.right, button[i].r.top);
 				glVertex2i(button[i].r.right, button[i].r.bot);
 			glEnd();
-			r.left = button[i].r.centerx;
-			r.bot  = button[i].r.centery-8;
-			r.center = 1;
-			ggprint16(&r, 0, button[i].text_color, button[i].text);
+			glLineWidth(1);
 		}
+		if (button[i].down) {
+			glColor3fv(button[i].dcolor);
+		} else {
+			glColor3fv(button[i].color);
+		}
+		glBegin(GL_QUADS);
+			glVertex2i(button[i].r.left,  button[i].r.bot);
+			glVertex2i(button[i].r.left,  button[i].r.top);
+			glVertex2i(button[i].r.right, button[i].r.top);
+			glVertex2i(button[i].r.right, button[i].r.bot);
+		glEnd();
+		r.left = button[i].r.centerx;
+		r.bot  = button[i].r.centery-8;
+		r.center = 1;
+		ggprint16(&r, 0, button[i].text_color, button[i].text);
 
 	}
 	
@@ -1416,9 +1425,10 @@ void render(void)
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (jason_feature) {
+		//feature_border(xres,yres);  // enable border    
+        	log_window(xres,yres); // enable log window
+        	log_print(logQueue, xres, yres);
 	
-		feature_border(xres,yres);
-		game_log(xres,yres);
 	}
 
 	if (pause_screen != 0) {
@@ -1432,13 +1442,9 @@ void render(void)
 	if (intro) {
 		showIntro(xres, yres, capitalTexture);
 	}
-
-	if (cecilioFeature) {
-		cecilio_feature(xres, yres);
-	}
 	
-	if ((game_over) || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, gameOver);
+	if (game_over) {
+		showGameOver(xres, yres);
 	}
 
 	if (taylorFeature){
