@@ -205,6 +205,11 @@ typedef struct t_ship {
 
 class Ship Ship;
 class Ship ship[MAXSHIPS];
+int shipTotals[] = {0};
+// shipTotals[0] = attack
+// shipTotals[1] = capital
+// shipTotals[2] = repair
+// shipTotals[3] = planet
 int nships=0;
 int nshipssunk=0;
 int nbombs=0;
@@ -647,7 +652,7 @@ void check_keys(XEvent *e)
 			help = toggle(help);
 			break;
 		case XK_space:
-			intro = !intro;
+			intro = false;
 			break;
 		case XK_o:
 			game_over = manage_over_state(game_over);
@@ -655,7 +660,7 @@ void check_keys(XEvent *e)
 		case XK_v:
 			if (gamemode == MODE_PLACE_SHIPS)
 				//printf("\ncalling validate function...\n");
-				validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
+				validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
         break;
 		case XK_m:
 			missileType ^=1;
@@ -697,7 +702,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 				if (i==3) {
 					//user clicked validate
 					//printf("\ncalling validate function...\n");
-					validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
+					validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
 				}
 				if (i==4) {
 					//user clicked help
