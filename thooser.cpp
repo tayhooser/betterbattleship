@@ -62,9 +62,9 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 					ship[curShip].pos[1] = j;
 					
 					printf("\tship %d found!\n", curShip);
-					printf("\t\tsize = %d\n",  ship[curShip].size);
-					printf("\t\ttype = %d\n",  ship[curShip].type);
-					printf("\t\tlocation = (%d,%d)\n", i, j);
+					//printf("\t\tsize = %d\n",  ship[curShip].size);
+					//printf("\t\ttype = %d\n",  ship[curShip].type);
+					//printf("\t\tlocation = (%d,%d)\n", i, j);
 					
 					//find bottom left corner of ship, validate all possible shapes
 					
@@ -96,10 +96,10 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 					
 					// repair : 1x1 ONLY 1
 					}else if (ship[curShip].type == SHIP_REPAIR){
-						if (shipTotals[2] < 1){
+						if (shipTotals[2] > 1){
 							ship[curShip].type = SHIP_INVALID;
 						}else{
-							shipTotals[2] = 1;;
+							shipTotals[2] = 1;
 						}
 						
 					// planet : 3x3 ONLY 1
@@ -140,11 +140,18 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 		}
 	}
 	
+	printf("attck = %d\n", shipTotals[0]);
+	printf("capital = %d\n", shipTotals[1]);
+	printf("repair = %d\n", shipTotals[2]);
+	printf("planet = %d\n", shipTotals[3]);
+	
 	if ((shipTotals[2] == 1)
 		&& (shipTotals[3] == 1)
-		&& (shipTotals[0] + shipTotals[1] >= MAXSHIPS - 1)){
+		&& ((shipTotals[0] + shipTotals[1]) >= 1)){
+			printf("VALID = TRUE\n\n");
 			return true;
 	}
+	printf("VALID = FALSE\n\n");
 	return false;
 	
 }
@@ -210,7 +217,6 @@ void taylorFeatureOverlay(int xres, int yres)
 	
 	ggprint16(&r, 40, 0xffffff00, "Taylor's Feature:");
 	ggprint16(&r, 40, 0xffffff00, "Ship types, textures, and validation");
-	ggprint16(&r, 40, 0xffffff00, "Press V to validate ships");
 }
 
 // function from lab 7
