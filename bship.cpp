@@ -205,17 +205,11 @@ typedef struct t_ship {
 
 class Ship Ship;
 class Ship ship[MAXSHIPS];
-
-int shipTotals[] = {0};
-// shipTotals[0] = attack
-// shipTotals[1] = capital
-// shipTotals[2] = repair
-// shipTotals[3] = planet
-
 int nships=0;
 int nshipssunk=0;
 int nbombs=0;
 int ntbombs = 0;
+int prev_ntbombs = 100;
 
 int missileType = 0;
 int feature_mode = 0;
@@ -550,6 +544,7 @@ void reset_grids(void)
 	gamemode = MODE_READY;
 	taylorFeature = false;
 	nships = 0;
+	ntbombs = 0;
 }
 
 void init(void)
@@ -652,7 +647,7 @@ void check_keys(XEvent *e)
 			help = toggle(help);
 			break;
 		case XK_space:
-			intro = false;
+			intro = !intro;
 			break;
 		case XK_o:
 			game_over = manage_over_state(game_over);
@@ -660,7 +655,7 @@ void check_keys(XEvent *e)
 		case XK_v:
 			if (gamemode == MODE_PLACE_SHIPS)
 				//printf("\ncalling validate function...\n");
-				validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
+				validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
         break;
 		case XK_m:
 			missileType ^=1;
@@ -702,7 +697,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 				if (i==3) {
 					//user clicked validate
 					//printf("\ncalling validate function...\n");
-					validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
+					validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
 				}
 				if (i==4) {
 					//user clicked help
@@ -724,6 +719,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 						y <= cent[1]+qsize) {
 						
 						// if user clicked in left grid
+						// TODO: recycle ships
 						if (ibutton == 1) {
 							//does this quad have any connecting quads?
 							if (nships != 0){
@@ -740,7 +736,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 								ship[nships].updateType();
 								int prevship = 0;
 								printf("\t\tship %d updated! type %d\n", grid1[i][j].shipno, ship[nships].type);
-								if (ship[nships].type == 3 && prevship != grid1[i][j].shipno){
+								if (ship[nships].type == 1 && prevship != grid1[i][j].shipno){
 									ntbombs++;
 									prevship = grid1[i][j].shipno;
 								}
@@ -778,7 +774,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 								missileType = 0;
 								nbombs--;
 							}
-							if (grid1[i][j].status) {
+							if (grid1[i][j].status && missileType == 0) {
 								int s = grid1[i][j].shipno;
 								grid2[i][j].status = 2;
 								if (feature_mode)
@@ -795,7 +791,8 @@ void mouse_click(int ibutton, int action, int x, int y)
 								}
 							}
 							if (feature_mode != 0) {
-								if (missileType != 0 && ntbombs > 0){
+								if (missileType != 0 && ntbombs != prev_ntbombs){
+									prev_ntbombs = ntbombs;
 									int radar = 0;
 									if (grid1[i][j].status) {
 										int s = grid1[i][j].shipno;
