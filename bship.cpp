@@ -219,6 +219,7 @@ int shipTotals[] = {0};
 // shipTotals[1] = capital
 // shipTotals[2] = repair
 // shipTotals[3] = planet
+
 int nships=0;
 int nshipssunk=0;
 
@@ -254,6 +255,7 @@ int help = 0; // off on startup
 int jason_feature = 0; // off on start up
 unsigned int game_over = 0; //off on startup
 bool taylorFeature = false; //off on startup, turns on during ship place
+bool cecilioFeature = false;
 
 
 class X11_wrapper {
@@ -595,6 +597,7 @@ extern int show_dwelch();
 extern int show_jason();
 extern int show_danny();
 extern void show_cecilio();
+extern void cecilio_feature(int xres, int yres);
 
 extern void showIntro(int xres, int yres, GLuint capitalTexture);
 
@@ -646,7 +649,8 @@ void check_keys(XEvent *e)
 			show_danny();
 			break;
 		case XK_g:
-			show_cecilio();
+			//show_cecilio();
+			cecilioFeature = !cecilioFeature;
 			break;
 		case XK_d:
 			show_dwelch();
@@ -668,7 +672,7 @@ void check_keys(XEvent *e)
 			help = toggle(help);
 			break;
 		case XK_space:
-			intro = false;
+			intro = !intro;
 			break;
 		case XK_o:
 			game_over = manage_over_state(game_over);
@@ -1427,6 +1431,10 @@ void render(void)
 	
 	if (intro) {
 		showIntro(xres, yres, capitalTexture);
+	}
+
+	if (cecilioFeature) {
+		cecilio_feature(xres, yres);
 	}
 	
 	if ((game_over) || (gamemode == MODE_GAMEOVER)) {
