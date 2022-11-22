@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+using namespace std;
 #include <unistd.h>
 #include <cstring>
 #include <GL/glx.h>
@@ -23,7 +25,7 @@ int show_dwelch()
 
 }
 
-void showGameOver(int xres, int yres)
+void showGameOver(int xres, int yres, string gameOver)
 {
 	Rect r;
 	int xcent = xres / 2;
@@ -40,7 +42,7 @@ void showGameOver(int xres, int yres)
 	r.left = xcent;
 	r.bot  = ycent + 80;
 	r.center = 50;
-	ggprint16(&r, 50, 0xffffffff, "Game Over");
+	ggprint16(&r, 50, 0xffffffff, gameOver.c_str());
 }
 
 /*
