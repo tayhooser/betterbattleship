@@ -196,6 +196,10 @@ Image *capitalImage = NULL;
 Image *logoImage = NULL;
 Image *logo2Image = NULL;
 
+// -----------QUEUE STRUCTURE------------------------------------------
+	
+Queue logQueue;
+
 // -----------SHIP STRUCTURE------------------------------------------
 
 // original ship structure, updated and moved to thooser.h
@@ -252,7 +256,7 @@ bool credits = false; //off on startup
 bool intro = true; // plays on startup
 unsigned int pause_screen = 0; //off on startup
 int help = 0; // off on startup
-int jason_feature = 0; // off on start up
+int jason_feature = 1; // plays on start up
 unsigned int game_over = 0; //off on startup
 bool taylorFeature = false; //off on startup, turns on during ship place
 bool cecilioFeature = false;
@@ -544,7 +548,7 @@ void init_opengl(void)
 void reset_grids(void)
 {
 	//restart the game...
-	int i,j;
+	int i,j,size;
 	for (i=0; i<grid_dim; i++) {
 		for (j=0; j<grid_dim; j++) {
 			grid1[i][j].status=0;
@@ -559,6 +563,10 @@ void reset_grids(void)
 	nbombs = 0;
 	ntbombs = 0;
 	shipsValid = false;
+	size = logQueue.size();
+	for (int i=0; i<size; i++){
+		logQueue.dequeue();
+	}
 }
 
 void init(void)
@@ -658,6 +666,8 @@ void check_keys(XEvent *e)
 			break;
 		case XK_c:
 			credits = !credits;
+			if ( jason_feature )
+				jason_feature = toggle(jason_feature);
 			break;
 		case XK_p:
 			pause_screen = manage_state(pause_screen);
@@ -815,6 +825,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 							if (grid1[i][j].status && missileType == 0) {
 								int s = grid1[i][j].shipno;
 								grid2[i][j].status = 2;
+								logQueue.enqueue("Ship hit");
 								if (feature_mode)
 									make_particle(cent[0], cent[1], qsize);
 								{
@@ -831,6 +842,8 @@ void mouse_click(int ibutton, int action, int x, int y)
 										} 
 									}
 								}
+							} else {
+								logQueue.enqueue("You missed");
 							}
 							if (feature_mode != 0) {
 								if (missileType != 0 && ntbombs != prev_ntbombs){
@@ -1147,6 +1160,8 @@ int check_for_sink(int s)
 			}
 		}
 	}
+	if ( sunk )
+		logQueue.enqueue("Blew up ship");
 	return sunk;
 }
 
@@ -1416,9 +1431,9 @@ void render(void)
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (jason_feature) {
-	
-		feature_border(xres,yres);
-		game_log(xres,yres);
+	//  feature_border(xres, yres); // enable border	
+		log_window(xres, yres); // enables log window
+		log_print(logQueue, xres, yres);
 	}
 
 	if (pause_screen != 0) {
