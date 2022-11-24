@@ -58,9 +58,15 @@ public:
 		}
 	}
 	
-	void updateStatus(void)
+	void updateStatus(int s)
 	{
-		
+		if (s == 0){
+			status = SHIP_HEALTHY;
+		}else if (s == 1){
+			status = SHIP_DAMAGED;
+		}else if (s == 2){
+			status = SHIP_SUNK;
+		}
 	}
 	
 };
@@ -74,3 +80,5 @@ extern bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIP
 extern void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nships);
 
 extern void taylorFeatureOverlay(int xres, int yres);
+
+extern void printGrid(Grid grid[][16], int GRIDDIM);

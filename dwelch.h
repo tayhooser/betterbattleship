@@ -14,3 +14,7 @@ class Show_Over{
 		Show_Over(const char *fname);
 };
 #endif
+
+extern int show_dwelch();
+
+extern void showGameOver(int xres, int yres, string gameOver);

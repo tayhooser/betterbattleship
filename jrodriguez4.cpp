@@ -7,7 +7,7 @@
 #include <stdio.h>	// <--- output/input functions 
 #include <stdlib.h>	
 #include <GL/glx.h>	// <--- OpenGl functions and utilities
-#include "fonts.h"	
+#include "fonts.h"
 #include "jrodriguez4.h"
 
 
@@ -138,8 +138,21 @@ void show_help( int xres, int yres) {
     Rect r;
     int xcent = xres / 2;
     int ycent = yres / 2;
-    int w = 350;
-    int h = 220;
+    int w = 380;
+    int h = 300;
+	
+	//dim background
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor4f(0, 0, 0, 0.6f);
+	glBegin(GL_QUADS);
+		glVertex2f(0, yres);
+		glVertex2f(xres, yres);
+		glVertex2f(xres, 0);
+		glVertex2f(0, 0);
+		glEnd();
+	glDisable(GL_BLEND);
+	
     glColor3f(0, 0, 0);
     glBegin(GL_QUADS);
         glVertex2f(xcent-w, ycent-h);
@@ -148,6 +161,63 @@ void show_help( int xres, int yres) {
         glVertex2f(xcent+w, ycent-h);
     glEnd();
     
+	r.left = xcent;
+	r.bot  = ycent + 250;
+	ggprint16(&r, 80, 0xffffffff, "~~~ HELP ~~~");
+	
+	r.bot = ycent + 230;
+    r.center = 50;
+	ggprint16(&r, 25, 0xffffffff, " ");
+	ggprint16(&r, 25, 0xffffffff, "Ship Placement");
+	
+	r.left = xcent - 350;
+	r.center = 0;
+	ggprint16(&r, 25, 0xffffffff, "Place up to 10 ships total:");
+	ggprint16(&r, 25, 0xffffffff, "- 1 repair ship (1x1)");
+	ggprint16(&r, 25, 0xffffffff, "- 1 planet (3x3)");
+	ggprint16(&r, 25, 0xffffffff, "- Up to 8 attack (1x2) or capital (1x3) ships");
+	
+	r.left = xcent;
+	r.center = 50;
+	ggprint16(&r, 25, 0xffffffff, " ");
+	ggprint16(&r, 25, 0xffffffff, "Attacking Imperial Ships");
+	
+	r.left = xcent - 350;
+	r.center = 0;
+	ggprint16(&r, 25, 0xffffffff, "Each attack ship you place gives you 4 1x1 missiles.");
+	ggprint16(&r, 25, 0xffffffff, "Each capital ship you place gives you 2 plus-shaped missiles.");
+	
+	r.left = xcent;
+	r.center = 50;
+	ggprint16(&r, 25, 0xffffffff, " ");
+	ggprint16(&r, 25, 0xffffffff, "Repairing Rebel Ships");
+	
+	r.left = xcent - 350;
+	r.center = 0;
+	ggprint16(&r, 25, 0xffffffff, "If your repair ship is still healthy, you may repair 1 unit of any damaged ship.");
+	
+	
+	r.left = xcent;
+	r.center = 50;
+	ggprint16(&r, 25, 0xffffffff, " ");
+	ggprint16(&r, 25, 0xffffffff, "Moving Rebel Ships");
+	
+	r.left = xcent - 350;
+	r.center = 0;
+	ggprint16(&r, 25, 0xffffffff, "Once per game, you may move any placed ship. Only ships that are fully healthy");
+	ggprint16(&r, 25, 0xffffffff, "may be moved.");
+	
+	r.left = xcent;
+	r.center = 50;
+	ggprint16(&r, 25, 0xffffffff, " ");
+	ggprint16(&r, 25, 0xffffffff, "Winning and Losing");
+	
+	r.left = xcent - 350;
+	r.center = 0;
+	ggprint16(&r, 25, 0xffffffff, "Win by destroying your opponents planet. Lose by running out of");
+	ggprint16(&r, 25, 0xffffffff, "missiles or having your own planet destroyed.");
+	
+	/*
     r.left = xcent;
     r.bot = ycent + 140;
     r.center = 50;
@@ -167,6 +237,7 @@ void show_help( int xres, int yres) {
     ggprint16(&r, 25, 0xffffffff, " press 'F1' for Help");
     ggprint16(&r, 25, 0xffffffff, " press 'i' for Intro");
     ggprint16(&r, 25, 0xffffffff, " press 'Esc' to quit game");
+	*/
 
 }
 
@@ -179,9 +250,9 @@ void log_window(int xres, int yres) {
     int xcent = xres / 2;
     int ycent = yres / 2;
     int w = xres/12.5;
-    int h = yres/3;
+    int h = yres/4;
 	glEnable(GL_BLEND);
-    glColor4f(0.6, 0.6, 0.6, 0.7);
+    glColor4f(0.6, 0.3, 0.6, 0.7);
     glBegin(GL_QUADS);
         glVertex2f(xcent-w, ycent-h);
         glVertex2f(xcent-w, ycent+h);
@@ -190,7 +261,7 @@ void log_window(int xres, int yres) {
     glEnd();
     
     r.left = xcent;
-    r.bot = ycent+(h - 50);
+    r.bot = ycent+(h - 40);
     r.center = 50;
 
 	ggprint16(&r, 50, 0xfffffff0, " THEE LOG ");
@@ -208,20 +279,20 @@ Rect r;
     int h = yres/3;
 	
     r.left = xcent;
-    r.bot = ycent+(h - 100);
+    r.bot = ycent+(h - 130);
     r.center = 50;
 	
 	
-	ggprint16(&r, 25, 0xfffffff0, "  ");
-	ggprint16(&r, 25, 0xfffffff0, queueName.arr[0].c_str());
-	ggprint16(&r, 25, 0xfffffff0, "  ");
-	ggprint16(&r, 25, 0xfffffff0, queueName.arr[1].c_str());
-	ggprint16(&r, 25, 0xfffffff0, "  ");
-	ggprint16(&r, 25, 0xfffffff0, queueName.arr[2].c_str());
-	ggprint16(&r, 25, 0xfffffff0, "  ");
-	ggprint16(&r, 25, 0xfffffff0, queueName.arr[3].c_str());
-	ggprint16(&r, 25, 0xfffffff0, "  ");
-	ggprint16(&r, 25, 0xfffffff0, queueName.arr[4].c_str());
+	ggprint16(&r, 30, 0xfffffff0, "  ");
+	ggprint16(&r, 30, 0xfffffff0, queueName.arr[0].c_str());
+	ggprint16(&r, 30, 0xfffffff0, "  ");
+	ggprint16(&r, 30, 0xfffffff0, queueName.arr[1].c_str());
+	ggprint16(&r, 30, 0xfffffff0, "  ");
+	ggprint16(&r, 30, 0xfffffff0, queueName.arr[2].c_str());
+	ggprint16(&r, 30, 0xfffffff0, "  ");
+	ggprint16(&r, 30, 0xfffffff0, queueName.arr[3].c_str());
+	ggprint16(&r, 30, 0xfffffff0, "  ");
+	ggprint16(&r, 30, 0xfffffff0, queueName.arr[4].c_str());
 
 
 
