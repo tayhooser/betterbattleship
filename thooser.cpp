@@ -29,6 +29,8 @@ void show_taylor()
 // TODO: apply texture over valid ships
 bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships, int shipTotals[])
 {
+	//printf("\nVALIDATE FUNCTION CALLED ------------ \n");
+	
 	int validated[MAXSHIPS] = { 0 };
 	int v = 0;
 	int toDelete[MAXSHIPS] = { 0 };
@@ -38,20 +40,19 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 		shipTotals[i] = 0;
 	}
 	
-	// num of each ship type
-	int attack = 0; // shipTotals[0]
-	int capital = 0; // shipTotals[1]
-	int repair = 0; // shipTotals[2]
-	int planet = 0; // shipTotals[3]
+	// shipTotals[0] -> attack
+	// shipTotals[1] -> capital
+	// shipTotals[2] -> repair
+	// shipTotals[3] -> planet
 	
-	int curShip;
+	int curShip = 0;
 	
 	for (int i = 0 ; i < GRIDDIM; i++){
 		for (int j = 0; j < GRIDDIM; j++){
 			
 			if (grid[i][j].status == 1){ //if ship exists at location
 				curShip = grid[i][j].shipno;
-				//printf("\tcurShip = %d\n", curShip);
+				//printf("curShip = %d\n", curShip);
 				
 				// if ship not already validated
 				if (std::find(validated, validated+MAXSHIPS, curShip) == validated+MAXSHIPS){
@@ -61,13 +62,12 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 					ship[curShip].pos[0] = i;
 					ship[curShip].pos[1] = j;
 					
-					printf("\tship %d found!\n", curShip);
+					//printf("\tship %d found!\n", curShip);
 					//printf("\t\tsize = %d\n",  ship[curShip].size);
 					//printf("\t\ttype = %d\n",  ship[curShip].type);
 					//printf("\t\tlocation = (%d,%d)\n", i, j);
 					
 					//find bottom left corner of ship, validate all possible shapes
-					
 					// attack : 2x1
 					if (ship[curShip].type == SHIP_ATTACK){
 						if (grid[i][j+1].shipno == curShip){
@@ -121,38 +121,38 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 					}
 						
 					if (ship[curShip].type == SHIP_INVALID){
-						printf("\t\t!!SHIP %d INVALID!!\n", grid[i][j].shipno);
+						//printf("\t\t!!SHIP %d INVALID!!\n", grid[i][j].shipno);
 						toDelete[d] = curShip;
 						d++;
 					}else{
-						printf("\t\tship %d valid! orientation = %d\n", curShip, ship[curShip].orientation);
+						//printf("\t\tship %d valid! orientation = %d\n", curShip, ship[curShip].orientation);
 					}
 				}
 			}
 		}
 	}
 	
+	//printGrid(grid, GRIDDIM);
+	
 	// delete ships in delete list
 	for (int i = 0 ; i < MAXSHIPS; i++){
 		if (toDelete[i] != 0){
 			deleteShip(grid, ship, GRIDDIM, toDelete[i], nships);
-			printf("\n\tShip %d deleted, ship %d renamed to %d\n", toDelete[i], nships, toDelete[i]);
+			//printf("\n\tShip %d deleted, ship %d renamed to %d\n", toDelete[i], nships, toDelete[i]);
 		}
 	}
 	
-	printf("attck = %d\n", shipTotals[0]);
-	printf("capital = %d\n", shipTotals[1]);
-	printf("repair = %d\n", shipTotals[2]);
-	printf("planet = %d\n", shipTotals[3]);
+	//printGrid(grid, GRIDDIM);
 	
 	if ((shipTotals[2] == 1)
 		&& (shipTotals[3] == 1)
 		&& ((shipTotals[0] + shipTotals[1]) >= 1)){
-			printf("VALID = TRUE\n\n");
+			//printf("VALID = TRUE\n\n");
 			return true;
 	}
-	printf("VALID = FALSE\n\n");
+	//printf("VALID = FALSE\n\n");
 	return false;
+	
 	
 }
 
@@ -169,7 +169,7 @@ void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nshi
 				//printf("ship %d found, setting (%d, %d) to default/n", curShip, i, j);
 			}
 			// recycle ship
-			else if ((grid[i][j].shipno = nships) and curShip != nships){
+			else if ((grid[i][j].shipno == nships) && (curShip != nships)){
 				grid[i][j].shipno = curShip;
 				//printf("ship %d found, setting (%d, %d) to default\n", nships, i, j);
 			}
@@ -182,8 +182,16 @@ void deleteShip(Grid grid[][16], Ship ship[], int GRIDDIM, int curShip, int nshi
 	nships -= 1;
 }
 
-
-
+// prints grid and ship ids, used for debugging
+void printGrid(Grid grid[][16], int GRIDDIM)
+{
+	for (int i = GRIDDIM - 1; i >= 0; i--){
+		for (int j = 0; j < GRIDDIM; j++){
+			printf("%d ", grid[i][j].shipno);
+		}
+		printf("\n");
+	}
+}
 
 // overlay during ship placement phase
 void taylorFeatureOverlay(int xres, int yres)
@@ -226,8 +234,8 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
-	int w = 400;
-	int h = 280;
+	int w = 380;
+	int h = 300;
 	int imgdim = 64;
 	int imgx;
 	int imgy;
@@ -235,7 +243,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	//dim background
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	glColor4f(0, 0, 0, 0.4f);
+	glColor4f(0, 0, 0, 0.6f);
 	glBegin(GL_QUADS);
 		glVertex2f(0, yres);
 		glVertex2f(xres, yres);
@@ -253,9 +261,13 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 		glVertex2f(xcent+w, ycent-h);
 	glEnd();
 	
+	r.left = xcent;
+	r.bot  = ycent + 250;
+	ggprint16(&r, 80, 0xffffffff, "~~~ CREDITS ~~~");
+	
 	//display names
 	r.left = xcent + 100;
-	r.bot  = ycent + 150;
+	r.bot  = ycent + 130;
 	ggprint16(&r, 80, 0xffffffff, "Taylor Hooser");
 	ggprint16(&r, 80, 0xffffffff, "Jason Rodriguez");
 	ggprint16(&r, 80, 0xffffffff, "Danny Simpson");
@@ -265,7 +277,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 
 	//display taylor's portrait
 	imgx = xcent - 100;
-	imgy = ycent + 150 + 16;
+	imgy = ycent + 130 + 16;
 	
 	glBindTexture(GL_TEXTURE_2D, portraitTexture);
 	glBegin(GL_QUADS);
@@ -282,7 +294,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	
 	//display jason's portrait
 	imgx = xcent - 260;
-	imgy = ycent + 150 + 16 - 80;
+	imgy = ycent + 130 + 16 - 80;
 	
 	glBindTexture(GL_TEXTURE_2D, portraitTexture);
 	glBegin(GL_QUADS);
@@ -299,7 +311,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	
 	//display danny's portrait
 	imgx = xcent - 100;
-	imgy = ycent + 150 + 16 - 2*80;
+	imgy = ycent + 130 + 16 - 2*80;
 	
 	glBindTexture(GL_TEXTURE_2D, portraitTexture);
 	glBegin(GL_QUADS);
@@ -316,7 +328,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	
 	//display cecilio's portrait
 	imgx = xcent - 260;
-	imgy = ycent + 150 + 16 - 3*80;
+	imgy = ycent + 130 + 16 - 3*80;
 	
 	glBindTexture(GL_TEXTURE_2D, portraitTexture);
 	glBegin(GL_QUADS);
@@ -333,7 +345,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	
 	//display delaney's portrait
 	imgx = xcent - 100;
-	imgy = ycent + 150 + 16 - 4*80;
+	imgy = ycent + 130 + 16 - 4*80;
 	
 	glBindTexture(GL_TEXTURE_2D, portraitTexture);
 	glBegin(GL_QUADS);

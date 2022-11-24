@@ -38,3 +38,4 @@ void log_window(int xres, int yres); // shows log window
 void feature_border(int xres, int yres); // enables feature mode
 void show_help(int xres, int yres); // shows help window
 unsigned int toggle(unsigned int toggle); // used to toggle variables on/off
+extern int show_jason();
