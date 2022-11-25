@@ -234,6 +234,7 @@ enum {
 
 string gameOver = "You lose!";
 
+int cturns = 0;
 static int gamemode=0;
 bool credits = false; //off on startup, toggleable
 bool intro = true; // plays on startup, once
@@ -243,7 +244,8 @@ int jason_feature = 1; // always on, log panel
 unsigned int game_over = 0; //off on startup, toggleable
 bool taylorFeature = false; //off on startup, turns on during ship place
 bool cecilioFeature = false;
-
+bool moveMode = false;
+bool selectMode = false;
 
 
 // ----------- XWINDOWS ------------------------------------------
@@ -572,6 +574,7 @@ void reset_grids(void)
 			grid2[i][j].shipno=0;
 		}
 	}
+    cturns = 0;
 	gamemode = MODE_READY;
 	taylorFeature = false;
 	nships = 0;
@@ -656,10 +659,19 @@ void check_keys(XEvent *e)
 		case XK_s:
 			show_danny();
 			break;
+        //For testing only
+        case XK_e:
+            cturns = 0;
 		case XK_g:
 			//show_cecilio();
-			cecilioFeature = !cecilioFeature;
-			break;
+            //--gamemode;
+            //selectMode = !selectMode;
+			if (cturns == 0) {
+                cecilioFeature = 1;
+                cturns++;
+            }
+            //moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
+            break;
 		case XK_d:
 			show_dwelch();
 			break;
@@ -829,28 +841,77 @@ void mouse_click(int ibutton, int action, int x, int y)
 						m=1;
 						break;
 					}
-				}
-				// find ships gamemode ----------------------------------------------------
-				if (gamemode == MODE_FIND_SHIPS) {
-					get_grid_center(2,i,j,cent);
-					if (x >= cent[0]-qsize &&
-						x <= cent[0]+qsize &&
-						y >= cent[1]-qsize &&
-						y <= cent[1]+qsize) {
-						
-						// if user clicked in right grid
-						if (ibutton == 1) {
-							if (missileType != 0 && ntbombs > 0)
-								ntbombs--;
-							else {
-								missileType = 0;
-								nbombs--;
-							}
-							if (grid1[i][j].status && missileType == 0) {
-								int s = grid1[i][j].shipno;
-								grid2[i][j].status = 2;
-								logQueue.enqueue("Ship hit");
-								if (feature_mode)
+                }
+                // Move Ships
+                int t;
+                if (cecilioFeature == 1) {
+                    moveMode = 1;
+                    get_grid_center(1,i,j,cent);
+                    if (x >= cent[0]-qsize &&
+                            x <= cent[0]+qsize &&
+                            y >= cent[1]-qsize &&
+                            y <= cent[1]+qsize) {
+
+                        // if user clicked in left grid
+                        if (ibutton == 1) {
+                            int shipToMove = grid1[i][j].shipno;
+                            t = selectShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipToMove);
+                            cecilioFeature = 0;
+                            //printf("ship type %d just placed!", t);
+                        }
+                        m=1;
+                        break;
+                    }
+                }
+                if (moveMode == 1) {
+                    get_grid_center(1,i,j,cent);
+                    if (x >= cent[0]-qsize &&
+                            x <= cent[0]+qsize &&
+                            y >= cent[1]-qsize &&
+                            y <= cent[1]+qsize) {
+
+                        // if user clicked in left grid
+                        if (ibutton == 1) {
+                            moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, i, j);
+                            /*if (nships < MAXSHIPS - 1) {
+									grid1[i][j].shipno = nships;
+									ship[nships].size = 1;
+									ship[nships].updateType();
+									//printf("ship %d just placed! nships = %d\n", grid1[i][j].shipno, nships);
+									printf("ship type %d just placed!", t);
+									logtext = "Ship " + to_string(grid1[i][j].shipno) + " placed";
+									//logQueue.enqueue(logtext);
+									logQueue.enqueue("New ship placed");
+                                    moveMode = 0;
+								}*/
+                        moveMode = 0;
+                        }
+                        m=1;
+                        break;
+                    }
+                }
+
+                // find ships gamemode ----------------------------------------------------
+                if (gamemode == MODE_FIND_SHIPS) {
+                    get_grid_center(2,i,j,cent);
+                    if (x >= cent[0]-qsize &&
+                            x <= cent[0]+qsize &&
+                            y >= cent[1]-qsize &&
+                            y <= cent[1]+qsize) {
+
+                        // if user clicked in right grid
+                        if (ibutton == 1) {
+                            if (missileType != 0 && ntbombs > 0)
+                                ntbombs--;
+                            else {
+                                missileType = 0;
+                                nbombs--;
+                            }
+                            if (grid1[i][j].status && missileType == 0) {
+                                int s = grid1[i][j].shipno;
+                                grid2[i][j].status = 2;
+                                logQueue.enqueue("Ship hit");
+                                if (feature_mode)
 									make_particle(cent[0], cent[1], qsize);
 								{
 									//is this ship sunk?
@@ -1067,7 +1128,7 @@ void check_mouse(XEvent *e)
 	}
 	for (i=0; i<grid_dim; i++) {
 		for (j=0; j<grid_dim; j++) {
-			if (gamemode == MODE_PLACE_SHIPS) {
+			if (gamemode == MODE_PLACE_SHIPS || cecilioFeature || moveMode) {
 				get_grid_center(1,i,j,cent);
 				if (x >= cent[0]-qsize &&
 					x <= cent[0]+qsize &&
@@ -1302,7 +1363,7 @@ void render(void)
 	
 	
 	//draw the game
-	if (gamemode != MODE_FIND_SHIPS) {
+	if (gamemode != MODE_FIND_SHIPS || cecilioFeature || moveMode) {
 		// draw grid #1
 		// each grid square is drawn
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
