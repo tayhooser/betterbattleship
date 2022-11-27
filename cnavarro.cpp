@@ -1,16 +1,107 @@
 #include <stdio.h>
 #include <GL/glx.h>
 #include "fonts.h"
+#include "thooser.h"
+#include "cnavarro.h"
 
+int isAttack = 0;
+int isCapital = 1;
+int isRepair = 2;
+
+int shipt;
+int orient;
+int selectShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships, int shipToMove) {
+    //printf("%d", shipToMove);
+    for (int i = 0; i < GRIDDIM; i++) {
+        for (int j = 0; j < GRIDDIM; j++) {
+            if (grid[i][j].shipno == shipToMove)
+                if (ship[shipToMove].type != SHIP_PLANET) {
+                    {
+
+                        if (grid[i][j].status == 1 && ship[shipToMove].type == SHIP_REPAIR) {
+                            //printf("ship type repair:%d ", SHIP_REPAIR);
+                            shipt = 2;
+                            //printf("ship type %d just placed!", shipt);
+                        }
+                        if (grid[i][j].status == 1 && ship[shipToMove].type == SHIP_ATTACK) {
+                            if (ship[shipToMove].orientation == 0) {
+                                orient = 0;
+                            }
+                            if (ship[shipToMove].orientation == 1) {
+                                orient = 1;
+                            }
+                            //printf("ship type attack:%d ", SHIP_ATTACK);
+                            shipt = 0;
+                            //printf("ship type %d just placed!", shipt);
+                        }
+                        if (grid[i][j].status == 1 && ship[shipToMove].type == SHIP_CAPITAL) {
+                            if (ship[shipToMove].orientation == 0) {
+                                orient = 0;
+                            }
+                            if (ship[shipToMove].orientation == 1) {
+                                orient = 1;
+                            }
+                            //printf("ship type capital:%d ", SHIP_CAPITAL);
+                            shipt = 1;
+                            //printf("ship type %d just placed!", shipt);
+                        }
+                        //printf("Hello");
+                        grid[i][j].shipno = 0;
+                        grid[i][j].status = 0;
+                    }
+                }
+        }
+    }
+    return shipt;
+}
+
+void moveShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships, int k, int l) {
+    //int curShip = grid[k][l].shipno;
+    //ship[shipT].type = ship[curShip].type;
+    //printf("ship type %d just placed!", shipt);
+    //printf("ship type %d just placed!", orient);
+    if (shipt == 0) {
+        if (orient == 1) {
+            grid[k][l].status = 1;
+            grid[k+1][l].status = 1;
+        } else if (orient == 0) {
+            grid[k][l].status = 1;
+            grid[k][l+1].status = 1;
+        }
+    }
+    if (shipt == 1) {
+        if (orient == 1) {
+            grid[k][l].status = 1;
+            grid[k+1][l].status = 1;
+            grid[k+2][l].status = 1;
+        } else if (orient == 0) {
+            grid[k][l].status = 1;
+            grid[k][l+1].status = 1;
+            grid[k][l+2].status = 1;
+        }
+    }
+    if (shipt == 2) {
+        grid[k][l].status = 1;
+    }
+    /*for (int i = 0; i < GRIDDIM; i++) {
+		for (int j = 0; j < GRIDDIM; j++) {
+
+        }
+    }*/
+    //grid[i][j].shipno = shipT;
+    //if ()
+}
 void show_cecilio()
 {
 	printf ("Cecilio\n");
 }
 
+//Toggle when testing
+/*
 unsigned int cecilio_feature(unsigned int s) {
 	s = s ^ 1;
 	return s;
-}
+}*/
 
 void cecilio_feature(int xres, int yres) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
