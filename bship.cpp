@@ -219,6 +219,7 @@ int ntbombs = 0;
 int prev_ntbombs = 100;
 
 int feature_mode = 0;
+bool dee_feature = false;
 
 
 
@@ -696,7 +697,8 @@ void check_keys(XEvent *e)
             //moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
             break;
 		case XK_d:
-			show_dwelch();
+			//show_dwelch();
+			dee_feature = !dee_feature;
 			break;
 		case XK_t:
 			show_taylor();
@@ -1679,6 +1681,11 @@ void render(void)
 		taylorFeatureOverlay(xres, yres);
 	}	
 
+	// delaneys feature overlay
+	if (dee_feature) {
+		FeatureBox(xres, yres);
+		showTeir(xres, yres, xTexture);
+	}
 	
 	if (feature_mode == 1) {
 		FeatureBorder(xres, yres);
