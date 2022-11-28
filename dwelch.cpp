@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+using namespace std;
 #include <unistd.h>
 #include <cstring>
 #include <GL/glx.h>
@@ -13,8 +15,9 @@
 #include "dwelch.h"
 
 
+
 // ----- resizing and tinkering teirs
-	#define MXGRD 450
+	#define MXGRD 50
 	#define GRDDM 10
 	#define NGRDS 6
 
@@ -25,19 +28,23 @@ typedef struct t_grid {
 	float color[4];
 } Grid;
 Grid gridleft1[MXGRD][MXGRD];
+Grid gridleft2[MXGRD][MXGRD];
+Grid gridleft3[MXGRD][MXGRD];
 Grid gridright1[MXGRD][MXGRD];
+Grid gridright2[MXGRD][MXGRD];
+Grid gridright3[MXGRD][MXGRD];
 int GridDim = GRDDM;
 int GridMax = NGRDS;
-int BoardDim = 400;
+int BoardDim;
 int qsz;
 int dun=0;
 	
+
 unsigned int manage_over_state(unsigned int o)
 {
 	o = o ^ 1;
 	return o;
 }	
-	
 int show_dwelch()
 {
     printf("delaney\n");
@@ -45,6 +52,7 @@ int show_dwelch()
     return 0;
 
 }
+
 void FeatureBox(int xres, int yres)
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -77,66 +85,29 @@ void ResetGrids(void)
 	for (i=0; i<GridDim; i++) {
 		for (j=0; j<GridDim; j++) {
 			gridleft1[i][j].status=0;
+			gridleft2[i][j].status=0;
+			gridleft3[i][j].status=0;
+
 			gridright1[i][j].status=0;
+			gridright2[i][j].status=0;
+			gridright3[i][j].status=0;
 
 			gridleft1[i][j].shipno=0;
+			gridleft2[i][j].shipno=0;
+			gridleft3[i][j].shipno=0;
+
 			gridright1[i][j].shipno=0;
+			gridright2[i][j].shipno=0;
+			gridright3[i][j].shipno=0;
 		}
 	}
 }
-void get_grid_center(const int t, const int i, const int j, int xres, int yres, int cent[2]);
-void check_dims(const int t, const int x, const int y, const int i, const int j, int xres, int yres, int cent[2])
-{
-        for(int i=0; i<GridDim; i++) {
-                for (int j=0; j<GridDim; j++) {
-                        gridleft1[i][j].over=0;
-                        gridright1[i][j].over=0;
-                }
-        }
-        for (int i=0; i<GridDim; i++) {
-                for (int j=0; j<GridDim; j++) {
-                        if (t > 0 && t < 3) {
-                                get_grid_center(t,i,j,xres,yres,cent);
-                                if (x >= cent[0]-qsz &&
-                                        x <= cent[0]+qsz &&
-                                        y >= cent[1]-qsz &&
-                                        y <= cent[1]+qsz) {
-                                        gridleft1[i][j].over=1;
-                                        break;
-                                }
-                        }
-                        if (t > 3 && t < 6) {
-                                get_grid_center(t,i,j,xres,yres,cent);
-                                if (x >= cent[0]-qsz &&
-                                        x <= cent[0]+qsz &&
-                                        y >= cent[1]-qsz &&
-                                        y <= cent[1]+qsz) {
-                                        gridright1[i][j].over=1;
-                                        break;
-                                }
-                                if (x >= cent[0]-qsz &&
-                                        x <= cent[0]+qsz &&
-                                        y >= cent[1]-qsz &&
-                                        y <= cent[1]+qsz) {
-                                        gridright1[i][j].over=1;
-                                        gridright1[i + 1][j].over=1;
-                                        gridright1[i - 1][j].over=1;
-                                        gridright1[i][j + 1].over=1;
-                                        gridright1[i][j - 1].over=1;
-                                        break;
-                                }
-                        }
-               }
-                if (gridleft1[i][j].over) break;
-                if (gridright1[i][j].over) break;
-        }
-}
 
-void get_grid_center(const int t, const int i, const int j, int xres, int yres, int cent[2])
+void get_grid_center(const int t, const int g, const int i, const int j, int xres, int yres, int cent[2])
 {
 	//This function can be optimized, and made more generic.
 	int b2 = BoardDim/2;
-	int screen_center[2]= {xres/2, yres/2};
+	int screen_center[2] = {xres/2, yres/2};
 	int s0 = screen_center[0];
 	int s1 = screen_center[1];
 	//
@@ -144,26 +115,48 @@ void get_grid_center(const int t, const int i, const int j, int xres, int yres, 
 	switch(t) {
 		case 1:
 			s0 = xres/4;
-			//s1 = yres/6;
+			s1 = yres/6;
 			//set info to base left
 			//need to update s1 with y dims
 			break;
 		case 2:
 			s0 = xres/4;
-			s1 = yres/4 * 3.15;
-			//set info to atmo left
+			s1 = yres/4 * 3;
+			//set info to mid left
 			//need to update s1 with y dims
 			break;
 		case 3:
-			s0 = xres/4*3;
-			//set info to base right
+			s0 = xres/4;
+			s1 = yres/2;
+			//set info to atmo left
 			//need to update s1 with y dims
 			break;
 		case 4:
-			s0 = xres/4*3;
-			s1 = yres/4*3.15;
+			s0 = xres/4 * 3;
+			s1 = yres/6;
+			//set info to base right
+			//need to update s1 with y dims
+			break;
+		case 5:
+			s0 = xres/4 * 3;
+			s1 = yres/4 * 3;
 			//set info to mid right
 			//need to update s1 with y dims
+			break;
+		case 6:
+			s0 = xres/4 * 3;
+			s1 = yres/2;
+			//set info to atmo right
+			//need to update s1 with y dims
+			break;
+	}
+	//This determines the center of each grid.
+	switch(g) {
+		case 1:
+			s0 = xres/4;
+			break;
+		case 2:
+			s0 = xres/4 * 3;
 			break;
 	}
 	//quad upper-left corner
@@ -176,11 +169,11 @@ void get_grid_center(const int t, const int i, const int j, int xres, int yres, 
 	quad[1] = s1-b2;
 	cent[0] = quad[0] + bq/2;
 	cent[1] = quad[1] + bq/2;
-	cent[0] += (bq * i);
-	cent[1] += (bq * j);
+	cent[0] += (bq * j);
+	cent[1] += (bq * i);
 }
 
-void single(int, float, float);
+void drawGrid();
 void showTeir(int xres, int yres, GLuint xTexture)
 {
 //	glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
@@ -203,75 +196,183 @@ void showTeir(int xres, int yres, GLuint xTexture)
 	glColor3f(0.8f, 0.6f, 0.2f);
 	//
 
-	for (int h=1; h<3; h++){
-	    for (int y=0; y<5; y++){
-			for (int x=0; x<10; x++){
-				if (gridleft1[x][y].over) {
-					glColor3f(1.0f, 1.0f, 0.0f);
+	drawGrid();
+	//draw grid left #1
+		// ...each grid square is drawn
+		//
+	//	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	//	glEnable(GL_BLEND);
+		for (int h=0; h<GridMax; h++) {
+			for (int i=0; i<GridDim; i++) {
+				for (int j=0; j<GridDim; j++) {
+					get_grid_center(h,1,i,j,xres,yres,cent);
+					//glColor3f(0.5f, 0.1f, 0.1f);
+					glColor4f(20.0f, 51.0f, 13.3f, 111.5f);
+					//if (gridleft1[i][j].over) {
+					if (1) {
+						glColor3f(1.0f, 1.0f, 0.0f);
+					}
+					if (gridleft2[i][j].over) {
+						glColor3f(1.0f, 1.0f, 0.0f);
+					}
+					if (gridleft3[i][j].over) {
+						glColor3f(1.0f, 1.0f, 0.0f);
+					}
+					glBindTexture(GL_TEXTURE_2D, 0);
+
+					//if (gridleft1[i][j].status==1)
+					if (1)
+						glBindTexture(GL_TEXTURE_2D, xTexture);
+					if (gridleft2[i][j].status==1)
+						glBindTexture(GL_TEXTURE_2D, xTexture);
+					if (gridleft3[i][j].status==1)
+						glBindTexture(GL_TEXTURE_2D, xTexture);
+
+					glBegin(GL_QUADS);
+
+					glTexCoord2i(0.0f, 0.0f);
+					glVertex2f(cent[0]-width+i, cent[1]-height+j);
+					glTexCoord2i(0.0f, 1.0f);
+					glVertex2f(cent[0]-width+i, cent[1]+height-j);
+					glTexCoord2i(1.0f, 1.0f);
+					glVertex2f(cent[0]+width-i, cent[1]+height-j);
+					glTexCoord2i(1.0f, 0.0f);
+					glVertex2f(cent[0]+width-i, cent[1]-height+j);
+					glEnd();
+					glBindTexture(GL_TEXTURE_2D, 0);
+
+
+					glBegin(GL_QUADS);
+
+					glTexCoord2i(0.0f, 0.0f);
+					glVertex2f(cent[0]-15, cent[1]-15);
+					glTexCoord2i(0.0f, 1.0f);
+					glVertex2f(cent[0]-15, cent[1]+15);
+					glTexCoord2i(1.0f, 1.0f);
+					glVertex2f(cent[0]+15, cent[1]+15);
+					glTexCoord2i(1.0f, 0.0f);
+					glVertex2f(cent[0]+15, cent[1]-15);
+					glEnd();
+					glBindTexture(GL_TEXTURE_2D, 0);
+
+					/*
+					//if (grid1[i][j].status==2)
+					//	glBindTexture(GL_TEXTURE_2D, explosionTexture);
+					//grid left 1
+					glBegin(GL_QUADS);
+					glTexCoord2f(0.0f, 0.0f);
+					glVertex2i(cent[0]-qsz,cent[1]-qsz);
+					glTexCoord2f(0.0f, 0.2f);
+					glVertex2i(cent[0]-qsz,cent[1]+qsz);
+					glTexCoord2f(1.0f, 0.0f);
+					glVertex2i(cent[0]+qsz,cent[1]+qsz);
+					glTexCoord2f(1.0f, 0.2f);
+					glVertex2i(cent[0]+qsz,cent[1]-qsz);
+					glEnd();
+					//grid left 2
+					glBegin(GL_QUADS);
+					glTexCoord2f(0.0f, 0.4f);
+					glVertex2i(cent[0]-qsz,cent[1]-qsz);
+					glTexCoord2f(0.0f, 0.6f);
+					glVertex2i(cent[0]-qsz,cent[1]+qsz);
+					glTexCoord2f(1.0f, 0.4f);
+					glVertex2i(cent[0]+qsz,cent[1]+qsz);
+					glTexCoord2f(1.0f, 0.6f);
+					glVertex2i(cent[0]+qsz,cent[1]-qsz);
+					glEnd();
+					//grid left 3
+					glBegin(GL_QUADS);
+					glTexCoord2f(0.0f, 0.8f);
+					glVertex2i(cent[0]-qsz,cent[1]-qsz);
+					glTexCoord2f(0.0f, 1.0f);
+					glVertex2i(cent[0]-qsz,cent[1]+qsz);
+					glTexCoord2f(1.0f, 0.8f);
+					glVertex2i(cent[0]+qsz,cent[1]+qsz);
+					glTexCoord2f(1.0f, 1.0f);
+					glVertex2i(cent[0]+qsz,cent[1]-qsz);
+					glEnd();
+					glBindTexture(GL_TEXTURE_2D, 0);
 				}
-				glBindTexture(GL_TEXTURE_2D, 0);
-
-				if (gridleft1[x][y].status==1)
-					glBindTexture(GL_TEXTURE_2D, xTexture);
-
-				get_grid_center(h,x,y,xres,yres,cent);
-				single(h,cent[0]+qsz, cent[1]+qsz);
-				glBindTexture(GL_TEXTURE_2D, 0);
 			}
-	    }
-	}
-
+			}
+	//	glDisable(GL_BLEND);
+	//
 	//draw grid right #1
 	// ...each grid square is drawn
 	//
-	//glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	//glEnable(GL_BLEND);
-	for (int h=3; h<5; h++){
-		for (int i=0; i<5; i++) {
-			for (int j=0; j<10; j++) {
-				get_grid_center(h,j,i,xres,yres,cent);
-				if (gridright1[i][j].over) {
-					glColor3f(1.0f, 1.0f, 0.0f);
-				}
-				glBindTexture(GL_TEXTURE_2D, 0);
-				single(h,cent[0]+qsz, cent[1]+qsz);
-				glBindTexture(GL_TEXTURE_2D, 0);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	for (int i=0; i<GridDim; i++) {
+		for (int j=0; j<GridDim; j++) {
+			get_grid_center(2,i,j,xres,yres,cent);
+			//glColor3f(0.6f, 0.4f, 0.1f);
+			glColor4f(1.1f, 1.8f, 1.5f, 1.6f);
+			if (gridright1[i][j].over) {
+				glColor3f(1.0f, 1.0f, 0.0f);
 			}
+			if (gridright2[i][j].over) {
+				glColor3f(1.0f, 1.0f, 0.0f);
+			}
+			if (gridright3[i][j].over) {
+				glColor3f(1.0f, 1.0f, 0.0f);
+			}
+			glBindTexture(GL_TEXTURE_2D, 0);
+			//if (grid2[i][j].statu s==1)
+			glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2i(cent[0]-qsz,cent[1]-qsz);
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex2i(cent[0]-qsz,cent[1]+qsz);
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2i(cent[0]+qsz,cent[1]+qsz);
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2i(cent[0]+qsz,cent[1]-qsz);
+			glEnd();
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-		for (int i=0; i<5; i++) {
-			for (int j=0; j<10; j++) {
-				get_grid_center(h,j,i,xres,yres,cent);
-				if (gridright1[i][j].over) {
-					glColor3f(1.0f, 1.0f, 0.0f);
-				}
-				glBindTexture(GL_TEXTURE_2D, 0);
-				single(h,cent[0]+qsz, cent[1]+qsz);
-				glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	glDisable(GL_BLEND);*/
 			}
 		}
 	}
-	//glDisable(GL_BLEND);
 }
 //credits and creditibility
-void single(int h,float x, float y)
+void single(float, float);
+void drawGrid()
 {
-	if (h ==1)
-		glColor4f(0.3f, 1.0f, 0.9f, 0.6f);
-	if (h ==2)
-		glColor4f(0.0f, 0.0f, 1.0f, 0.0f);
-	if (h ==3)
-		glColor4f(1.0f, 0.0f, 0.0f, 0.0f);
-	if (h ==4)
-		glColor4f(0.5f, 0.0f, 0.0f, 0.0f);
+
+	for (int x=0; x<20; x+=10){
+		for (int y=0; y<20; y+=10){
+			single(100+x, 100+y);
+			single(130+x, 100+y);
+			single(160+x, 100+y);
+			single(190+x, 100+y);
+			single(220+x, 100+y);
+			single(250+x, 100+y);
+			single(280+x, 100+y);
+			single(310+x, 100+y);
+			single(340+x, 100+y);
+			single(370+x, 100+y);
+			single(400+x, 100+y);
+			single(430+x, 100+y);
+			single(460+x, 100+y);
+			single(490+x, 100+y);
+		}
+	}
+}
+void single(float x, float y)
+{
+	glColor3f(125.0,10.0,10.0);
 	glBegin(GL_QUADS);
 		glVertex2f(x,y);
-		glVertex2f(x+32,y);
-		glVertex2f(x+32,y+32);
-		glVertex2f(x,y+32);
+		glVertex2f(x+10,y);
+		glVertex2f(x+10,y+10);
+		glVertex2f(x,y+10);
 
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
 void deeCred(int xres, int yres)
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -305,7 +406,7 @@ void deeCred(int xres, int yres)
 	ggprint16(&r, 40, 0xffffff00, "Grid System Updates");
 }
 
-void showGameOver(int xres, int yres, GLuint overTexture)
+void showGameOver(int xres, int yres, GLuint overTexture, string gameOver)
 {
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -327,7 +428,56 @@ void showGameOver(int xres, int yres, GLuint overTexture)
 		glTexCoord2f(1.0f, 1.0f);
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	Rect r;
+	r.left = xcent;
+	r.bot  = 180;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, gameOver.c_str());
 }
 
+/*
+void over(){
+	Rect r;
+	ggprint16(&r, 50, 0xffffffff, "Game Over ");
+
+}
+extern class Show_Over show_over;
+
+Show_Over::~Show_Over() { delete [] data; }
+
+Show_Over::Show_Over(const char *fname) {
+	if (fname[0] == '\0')
+		return;
+	char name[40];
+	strcpy(name, fname);
+	int slen = strlen(name);
+	name[slen-4] = '\0';
+	char ppmname[80];
+	sprintf(ts, "convert %s %s" fname, ppmname);
+	system(ts);
+	FILE *fpi = fopen(ppmname, "r");
+	if (fpi) { 
+		char line[200];
+		fgets(line, 200, fpi);
+		fgets(line, 200, fpi);
+
+		while (line[0] == '#' || strlen(line) < 2)
+			fgets(line, 200, fpi);
+		sscanf(line, "%i %i", &width, &height);
+		fgets(line, 200, fpi);
+
+		int n = width * height * 3;
+		data = new unsigned char[n];
+		for (int i=0; i<n; i++)
+			data[i] = fgetc(fpi);
+		fclose(fpi);
+	}else {
+		printf("ERROR opening image: %s\n" ppmname);
+		exit(0);
+	}
+	unlink(ppmname);
+}
+*/
