@@ -127,6 +127,14 @@ void cecilio_feature(int xres, int yres) {
 
 	glEnd();
 	glDisable(GL_BLEND);
+	
+	Rect r;
+	r.left = 40;
+	r.bot  = yres - 50;
+	r.center = 0;
+	
+	ggprint16(&r, 40, 0xffffff00, "Cecilio's Feature:");
+	ggprint16(&r, 40, 0xffffff00, "Moving ships");
 
 }
 
