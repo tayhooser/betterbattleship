@@ -3,6 +3,9 @@
 
 //extern void over();
 extern unsigned int manage_over_state(unsigned int o);
+extern void showGameOver(int xres, int yres, GLuint overTexture);
+extern void showTeir(int xres, int yres, GLuint xTexture);
+extern void FeatureBox(int xres, int yres);
 
 #ifndef _GameOver_
 #define _GameOver_
@@ -14,11 +17,3 @@ class Show_Over{
 		Show_Over(const char *fname);
 };
 #endif
-
-extern int show_dwelch();
-
-extern void showGameOver(int xres, int yres, GLuint overTexture, string gameOver);
-
-extern void showTeir(int xres, int yres, GLuint xTexture);
-
-extern void FeatureBox(int xres, int yres);
