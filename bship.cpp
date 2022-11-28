@@ -1581,7 +1581,7 @@ void render(void)
 	
 	// game over screen
 	if (game_over || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, overTexture, gameOver);
+		showGameOver(xres, yres, overTexture);
 	}
 
 	// draw reset button
