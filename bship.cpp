@@ -165,7 +165,7 @@ Image img[7] = {"x.png",
 	"portraitPlaceholder.png", 
 	"capitalshipcombat.png",
 	"logo.png",
-  "gameover.png"};
+	"gameover.png"};
 
 GLuint xTexture;
 GLuint explosionTexture;
@@ -638,14 +638,6 @@ void init(void)
 	createButton("Find ships", 100, 140);
 }
 
-
-
-// -------- Function prototypes, move to individual .h files ---------
-
-extern void showGameOver(int xres, int yres);
-extern void showTeir(int xres, int yres, GLuint xTexture);
-extern void FeatureBox(int xres, int yres);
-extern void showGameOver(int xres, int yres, GLuint overTexture);
 
 
 // ----------- XEVENTS + OTHER ACTIONS ------------------------------------------
@@ -1495,7 +1487,7 @@ void render(void)
 			break;
 		case MODE_GAMEOVER:
 
-			showGameOver(xres, yres, overTexture);
+			showGameOver(xres, yres, overTexture, gameOver);
 			//ggprint16(&r, 0, 0x00000000, "Game over!");
 
 			break;
@@ -1633,8 +1625,7 @@ void render(void)
 	
 
 	if (game_over || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, overTexture);
-		//showGameOver(xres, yres, gameOver);
+		showGameOver(xres, yres, overTexture, gameOver);
 	}
 
 	if (taylorFeature){

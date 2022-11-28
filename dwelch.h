@@ -17,4 +17,8 @@ class Show_Over{
 
 extern int show_dwelch();
 
-extern void showGameOver(int xres, int yres, string gameOver);
+extern void showGameOver(int xres, int yres, GLuint overTexture, string gameOver);
+
+extern void showTeir(int xres, int yres, GLuint xTexture);
+
+extern void FeatureBox(int xres, int yres);

@@ -372,10 +372,8 @@ void single(float x, float y)
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
 void deeCred(int xres, int yres)
-
-//void showGameOver(int xres, int yres, string gameOver)
-
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -408,7 +406,7 @@ void deeCred(int xres, int yres)
 	ggprint16(&r, 40, 0xffffff00, "Grid System Updates");
 }
 
-void showGameOver(int xres, int yres, GLuint overTexture)
+void showGameOver(int xres, int yres, GLuint overTexture, string gameOver)
 {
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -433,7 +431,7 @@ void showGameOver(int xres, int yres, GLuint overTexture)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-
+	Rect r;
 	r.left = xcent;
 	r.bot  = ycent + 80;
 	r.center = 50;
