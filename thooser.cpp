@@ -96,7 +96,7 @@ bool validateShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int 
 					
 					// repair : 1x1 ONLY 1
 					}else if (ship[curShip].type == SHIP_REPAIR){
-						if (shipTotals[2] > 1){
+						if (shipTotals[2] >= 1){
 							ship[curShip].type = SHIP_INVALID;
 						}else{
 							shipTotals[2] = 1;

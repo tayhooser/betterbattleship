@@ -247,6 +247,7 @@ int help = 0; // off on startup, toggleable
 int jason_feature = 1; // always on, log panel
 unsigned int game_over = 0; //off on startup, toggleable
 bool taylorFeature = false; //off on startup, turns on during ship place
+
 bool cecilioFeature = false;
 bool moveMode = false;
 bool selectMode = false;
@@ -690,7 +691,8 @@ void check_keys(XEvent *e)
 			//show_cecilio();
             //--gamemode;
             //selectMode = !selectMode;
-			if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
+			//if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
+			if (cturns == 0) {
                 cecilioFeature = 1;
                 cturns++;
             }
@@ -816,10 +818,15 @@ void mouse_click(int ibutton, int action, int x, int y)
 					missileType ^=1;
 				}
 				if (i==8) {
-					if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
+					//show_cecilio();
+					//--gamemode;
+					//selectMode = !selectMode;
+					//if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
+					if (cturns == 0) {
 						cecilioFeature = 1;
 						cturns++;
 					}
+					//moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
 				}
 			}
 		}
