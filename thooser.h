@@ -1,4 +1,6 @@
-//taylor's include files 
+//author: Taylor Hooser
+//date: Spring 2022
+//purpose: include file for project
 
 #include <stdio.h>
 

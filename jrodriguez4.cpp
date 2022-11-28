@@ -264,7 +264,7 @@ void log_window(int xres, int yres) {
     r.bot = ycent+(h - 40);
     r.center = 50;
 
-	ggprint16(&r, 50, 0xfffffff0, " THEE LOG ");
+	ggprint16(&r, 50, 0xfffffff0, "CAPTAIN'S LOG ");
 }
 
 //|================|

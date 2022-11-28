@@ -1,13 +1,13 @@
+//Edited by: Taylor Hooser, Jason Rodriguez, Danny Simpson, Cecilio Navarro, Delaney Welch
+//date: Spring 2022
+//purpose: project final for CS 3350
+
 //cs335 Spring 2014 - 2018
 //program: bship.c
 //         refactored to bship.cpp
 //author:  gordon griesel
 //purpose: framework for a battleship game.
-//
-//This program needs further refactoring.
-//Maybe a global class.
-//
-//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +63,7 @@ int done=0;
 // ----------- BUTTON STRUCTURE ------------------------------------------
 int lbutton=0;
 int rbutton=0;
-#define MAXBUTTONS 8
+#define MAXBUTTONS 10
 typedef struct t_button {
 	Rect r;
 	char text[32];
@@ -172,20 +172,16 @@ GLuint explosionTexture;
 GLuint bgTexture;
 GLuint portraitTexture;
 GLuint capitalTexture;
-
-GLuint overTexture;
-
 GLuint logoTexture;
+GLuint overTexture;
 
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bgImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
-
-Image *overImage = NULL;
-
 Image *logoImage = NULL;
+Image *overImage = NULL;
 
 
 
@@ -566,17 +562,6 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
 	//-------------------------------------------------------------------------
-
-	//game over
-	w = overImage->width;
-	h = overImage->height;
-	glBindTexture(GL_TEXTURE_2D, overTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-								GL_RGB, GL_UNSIGNED_BYTE, overImage->data);
-	//
-
 	//logo
 	w = logoImage->width;
 	h = logoImage->height;
@@ -586,8 +571,15 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, logoImage->data);
 	//-------------------------------------------------------------------------
+	//game over
+	w = overImage->width;
+	h = overImage->height;
+	glBindTexture(GL_TEXTURE_2D, overTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, overImage->data);
 	
-
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -632,10 +624,12 @@ void init(void)
 	createButton("Quit", xres - 180, 10);
 	createButton("Credits", xres - 180, 70);
 	createButton("Help", xres - 180, 130);
-	createButton("Reset Grids", xres/2 - 100, 50);
+	createButton("Restart", xres/2 - 85, 50);
 	createButton("Validate Ships", 330, 140);
 	createButton("Place ships", 100, 140);
 	createButton("Find ships", 100, 140);
+	createButton("Change Missiles", xres/2 - 175, 140);
+	createButton("Move Ship", xres/2 + 5, 140);
 }
 
 
@@ -671,7 +665,7 @@ void check_keys(XEvent *e)
 			taylorFeature = false;
 			feature_mode = 0;
 			if (gamemode == MODE_PLACE_SHIPS){
-				//taylorFeature = true;
+				taylorFeature = true;
 			}
 			if (gamemode == MODE_FIND_SHIPS) {
 				feature_mode = 1;
@@ -695,7 +689,7 @@ void check_keys(XEvent *e)
 			//show_cecilio();
             //--gamemode;
             //selectMode = !selectMode;
-			if (cturns == 0) {
+			if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
                 cecilioFeature = 1;
                 cturns++;
             }
@@ -773,7 +767,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 				}
 				if (i==4) {
 					//user clicked validate
-					//printf("\ncalling validate function.......................................\n");
+					//printf("\ncalling validate function................\n");
 					shipsValid = validateShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, shipTotals);
 
 					for (int i = 1; i <= nships; i++){
@@ -800,7 +794,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 					taylorFeature = false;
 					feature_mode = 0;
 					if (gamemode == MODE_PLACE_SHIPS){
-						//taylorFeature = true;
+						taylorFeature = true;
 					}
 					if (gamemode == MODE_FIND_SHIPS) {
 						feature_mode = 1;
@@ -809,9 +803,20 @@ void mouse_click(int ibutton, int action, int x, int y)
 						//printf("capital ships = %d\n", shipTotals[1]);
 						nbombs = 4 * shipTotals[0];
 						ntbombs = 2 * shipTotals[1];
+						logQueue.enqueue("Search for ships!");
 					}
 					if (gamemode > MODE_GAMEOVER) {
 						gamemode = MODE_READY;
+					}
+				}
+				if (i==7) {
+					// user clicked missile
+					missileType ^=1;
+				}
+				if (i==8) {
+					if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
+						cecilioFeature = 1;
+						cturns++;
 					}
 				}
 			}
@@ -1470,6 +1475,7 @@ void render(void)
 		ggprint16(&r, 0, color, "IMPERIAL SHIPS");
 	}
 	
+	/*
 	//text in bottom left corner 
 	r.left = 4;
 	r.bot  = 100;
@@ -1492,10 +1498,12 @@ void render(void)
 
 			break;
 	}
+	*/
+	
 	r.left = 4;
 	r.bot  = 80;
 	r.center = 0;
-	ggprint16(&r, 20, 0x00000000, "Press M to toggle missile type!");
+	//ggprint16(&r, 20, 0x00000000, "Press M to toggle missile type!");
 	r.left = 4;
 	r.bot  = 60;
 	r.center = 0;
@@ -1519,9 +1527,11 @@ void render(void)
 	// 4 = validate
 	// 5 = place
 	// 6 = find
+	// 7 = missiles
+	// 8 = move ships
 	
 	// draw gameplay buttons
-	for (i=3; i<nbuttons; i++) {
+	for (i=4; i<nbuttons; i++) {
 		if (i == 4 && gamemode != MODE_PLACE_SHIPS){
 			// only draw validate button in placement mode
 		}else if (i == 5 && gamemode != MODE_READY){
@@ -1530,8 +1540,10 @@ void render(void)
 			// only draw find button in placement mode
 		}else if (i == 6 && shipsValid == false){
 			// only draw find button if ships are valid
-		//}else if (credits || help){
-			// only draw help/credits/quit when credits/help is up
+		}else if (i == 7 && gamemode != MODE_FIND_SHIPS){
+			// only draw missile button in find gamemode
+		}else if (i == 8 && gamemode != MODE_FIND_SHIPS){
+			// only draw move ship button in find gamemode
 		}else{
 			// draw button
 			if (button[i].over) {
@@ -1564,6 +1576,45 @@ void render(void)
 			ggprint16(&r, 0, button[i].text_color, button[i].text);
 		}
 	}
+	
+	// game over screen
+	if (game_over || (gamemode == MODE_GAMEOVER)) {
+		showGameOver(xres, yres, overTexture, gameOver);
+	}
+
+	// draw reset button
+	for (i=3; i<=3; i++) {
+		// draw button
+		if (button[i].over) {
+			glColor3f(1.0f, 0.0f, 0.0f);
+			//draw a highlight around button
+			glLineWidth(2);
+			glBegin(GL_LINE_LOOP);
+				glVertex2i(button[i].r.left-2,  button[i].r.bot-2);
+				glVertex2i(button[i].r.left-2,  button[i].r.top+2);
+				glVertex2i(button[i].r.right+2, button[i].r.top+2);
+				glVertex2i(button[i].r.right+2, button[i].r.bot-2);
+				glVertex2i(button[i].r.left-2,  button[i].r.bot-2);
+			glEnd();
+			glLineWidth(1);
+		}
+		if (button[i].down) {
+			glColor3fv(button[i].dcolor);
+		} else {
+			glColor3fv(button[i].color);
+		}
+		glBegin(GL_QUADS);
+			glVertex2i(button[i].r.left,  button[i].r.bot);
+			glVertex2i(button[i].r.left,  button[i].r.top);
+			glVertex2i(button[i].r.right, button[i].r.top);
+			glVertex2i(button[i].r.right, button[i].r.bot);
+		glEnd();
+		r.left = button[i].r.centerx;
+		r.bot  = button[i].r.centery-8;
+		r.center = 1;
+		ggprint16(&r, 0, button[i].text_color, button[i].text);
+	}
+
 
 	// draw credits
 	if (credits) {
@@ -1575,7 +1626,7 @@ void render(void)
 		show_help(xres,yres);
 	}
 
-	// draw qut/credits/help buttons
+	// draw quit/credits/help buttons
 	for (i=0; i<3; i++) {
 		// draw button
 		if (button[i].over) {
@@ -1622,16 +1673,13 @@ void render(void)
 	if (cecilioFeature) {
 		cecilio_feature(xres, yres);
 	}
-	
 
-	if (game_over || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, overTexture, gameOver);
-	}
-
+	// taylors feature overlay
 	if (taylorFeature){
 		taylorFeatureOverlay(xres, yres);
 	}	
 
+	
 	if (feature_mode == 1) {
 		FeatureBorder(xres, yres);
 	}

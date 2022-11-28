@@ -433,7 +433,7 @@ void showGameOver(int xres, int yres, GLuint overTexture, string gameOver)
 
 	Rect r;
 	r.left = xcent;
-	r.bot  = ycent + 80;
+	r.bot  = 180;
 	r.center = 50;
 	ggprint16(&r, 50, 0xffffffff, gameOver.c_str());
 }

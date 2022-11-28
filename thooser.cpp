@@ -1,7 +1,7 @@
 //author: Taylor Hooser
 //date: Spring 2022
 //purpose: personal file for project
-//
+
 
 #include <stdio.h>
 #include <GL/glx.h>
@@ -220,11 +220,11 @@ void taylorFeatureOverlay(int xres, int yres)
 	
 	Rect r;
 	r.left = 40;
-	r.bot  = yres - 40;
+	r.bot  = yres - 50;
 	r.center = 0;
 	
 	ggprint16(&r, 40, 0xffffff00, "Taylor's Feature:");
-	ggprint16(&r, 40, 0xffffff00, "Ship types, textures, and validation");
+	ggprint16(&r, 40, 0xffffff00, "Ship types and validation");
 }
 
 // function from lab 7
@@ -266,7 +266,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	ggprint16(&r, 80, 0xffffffff, "~~~ CREDITS ~~~");
 	
 	//display names
-	r.left = xcent + 100;
+	r.left = xcent;
 	r.bot  = ycent + 130;
 	ggprint16(&r, 80, 0xffffffff, "Taylor Hooser");
 	ggprint16(&r, 80, 0xffffffff, "Jason Rodriguez");
@@ -275,6 +275,8 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	ggprint16(&r, 80, 0xffffffff, "Delaney Welch");
 	
 
+	// decided to not have portraits
+	/*
 	//display taylor's portrait
 	imgx = xcent - 100;
 	imgy = ycent + 130 + 16;
@@ -359,4 +361,5 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
+	*/
 }
