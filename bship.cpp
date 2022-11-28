@@ -159,27 +159,34 @@ public:
 			unlink(ppmname);
 	}
 };
-Image img[6] = {"x.png", 
+Image img[7] = {"x.png", 
 	"explosion.png", 
 	"background.png",
 	"portraitPlaceholder.png", 
 	"capitalshipcombat.png",
-	"logo.png"};
+	"logo.png",
+  "gameover.png"};
 
 GLuint xTexture;
 GLuint explosionTexture;
 GLuint bgTexture;
 GLuint portraitTexture;
 GLuint capitalTexture;
+
+GLuint overTexture;
+
 GLuint logoTexture;
-GLuint logo2Texture;
+
 Image *xImage = NULL;
 Image *explosionImage = NULL;
 Image *bgImage = NULL;
 Image *portraitImage = NULL;
 Image *capitalImage = NULL;
+
+Image *overImage = NULL;
+
 Image *logoImage = NULL;
-Image *logo2Image = NULL;
+
 
 
 
@@ -492,7 +499,12 @@ void init_opengl(void)
 	bgImage     	= &img[2];
 	portraitImage 	= &img[3];
 	capitalImage 	= &img[4];
+
+	overImage    	= &img[6];
+	//
+
 	logoImage		= &img[5];
+
 
 	//allocate opengl texture identifiers
 	glGenTextures(1, &xTexture);
@@ -500,7 +512,12 @@ void init_opengl(void)
 	glGenTextures(1, &bgTexture);
 	glGenTextures(1, &portraitTexture);
 	glGenTextures(1, &capitalTexture);
+
+	glGenTextures(1, &overTexture);
+	//
+
 	glGenTextures(1, &logoTexture);
+
 
 	//load textures into memory
 	//-------------------------------------------------------------------------
@@ -549,6 +566,17 @@ void init_opengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 								GL_RGB, GL_UNSIGNED_BYTE, capitalImage->data);
 	//-------------------------------------------------------------------------
+
+	//game over
+	w = overImage->width;
+	h = overImage->height;
+	glBindTexture(GL_TEXTURE_2D, overTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+								GL_RGB, GL_UNSIGNED_BYTE, overImage->data);
+	//
+
 	//logo
 	w = logoImage->width;
 	h = logoImage->height;
@@ -559,6 +587,7 @@ void init_opengl(void)
 								GL_RGB, GL_UNSIGNED_BYTE, logoImage->data);
 	//-------------------------------------------------------------------------
 	
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -609,6 +638,14 @@ void init(void)
 	createButton("Find ships", 100, 140);
 }
 
+
+
+// -------- Function prototypes, move to individual .h files ---------
+
+extern void showGameOver(int xres, int yres);
+extern void showTeir(int xres, int yres, GLuint xTexture);
+extern void FeatureBox(int xres, int yres);
+extern void showGameOver(int xres, int yres, GLuint overTexture);
 
 
 // ----------- XEVENTS + OTHER ACTIONS ------------------------------------------
@@ -1457,7 +1494,10 @@ void render(void)
 			ggprint16(&r, 0, 0x00000000, "Search for ships on grid!");
 			break;
 		case MODE_GAMEOVER:
-			ggprint16(&r, 0, 0x00000000, "Game over!");
+
+			showGameOver(xres, yres, overTexture);
+			//ggprint16(&r, 0, 0x00000000, "Game over!");
+
 			break;
 	}
 	r.left = 4;
@@ -1591,8 +1631,10 @@ void render(void)
 		cecilio_feature(xres, yres);
 	}
 	
-	if ((game_over) || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, gameOver);
+
+	if (game_over || (gamemode == MODE_GAMEOVER)) {
+		showGameOver(xres, yres, overTexture);
+		//showGameOver(xres, yres, gameOver);
 	}
 
 	if (taylorFeature){
