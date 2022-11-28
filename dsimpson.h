@@ -5,3 +5,4 @@ extern void FeatureBorder(int xres, int yres);
 extern void ExplosionAnimation(int x, int y, int width, int m);
 extern void make_particle(int x, int y, int width);
 extern void explosion_physics();
+extern int show_danny();

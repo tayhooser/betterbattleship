@@ -1,50 +1,41 @@
 // Jason's Include file 
-// Update Date : October 17 2022
+// Update Date : November 2  2022
+#include <iostream>
+#include <string>
 
-//*************************************
-//---------- Queue Template ----------*
-//*************************************
+using namespace std;
 
-template <class T>
+//
+//QUEUE FOR STRINGS ( size of 5 )
+//
+
 class Queue {
 
 	private:
-		T *queueArray; // Points to the queue array
-		int queueSize; // The queue size
-		int front; // The queue front 
-		int rear; // The queue rear
-		int queueItems; // Number of Items in the queue
+		int front, rear;
 	public:
-		// Constructor
-		Queue(int);
-
-		// Copy Constructor
-		Queue(const Queue &);
-
-		// Destructor
-		~Queue();
-
-		// Operations of the Queue
-		void enqueue(T);
-		void dequeue(T);
-		bool isEmpty() const;
-		bool isFull() const;
-		void clear();
+		string arr[5];
+	Queue() {
+		front = -1;
+		rear = -1;
+		for ( int i=0; i<5; i++) {
+			arr[i] = " ---- ";
+		}
+	}
+	bool isEmpty();
+	bool isFull();
+	void enqueue(string action);
+	void dequeue();
+	int size();
+	void showQueue();
 };
 
-//*************************************
-//---------- VOID FUNCTIONS ----------*
-//*************************************
-//template <class T>
-void printText(Queue<std::string> queueName,int xres,int yres);
-template <class T>
-void logText(Queue<std::string> queueName,std::string event);
-void logFrame(int xres, int yres);  // Build the frame for the log window
-void feature_border(int xres, int yres); // enables feature mode aka log window
+//
+//FUNCTIONS
+//
+void log_print(Queue queueName, int xres, int yres); // shows log window 
+void log_window(int xres, int yres); // shows log window 
+void feature_border(int xres, int yres); // enables feature mode
 void show_help(int xres, int yres); // shows help window
-
-//*************************************
-//---------- INT FUNCTIONS -----------*
-//*************************************
-
 unsigned int toggle(unsigned int toggle); // used to toggle variables on/off
+extern int show_jason();

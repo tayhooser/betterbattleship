@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+using namespace std;
 #include <unistd.h>
 #include <cstring>
 #include <GL/glx.h>
@@ -11,6 +13,7 @@
 #include <GL/glut.h>
 #include "fonts.h"
 #include "dwelch.h"
+
 
 
 // ----- resizing and tinkering teirs
@@ -36,12 +39,12 @@ int BoardDim;
 int qsz;
 int dun=0;
 	
+
 unsigned int manage_over_state(unsigned int o)
 {
 	o = o ^ 1;
 	return o;
 }	
-	
 int show_dwelch()
 {
     printf("delaney\n");
@@ -49,6 +52,7 @@ int show_dwelch()
     return 0;
 
 }
+
 void FeatureBox(int xres, int yres)
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -369,6 +373,9 @@ void single(float x, float y)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 void deeCred(int xres, int yres)
+
+//void showGameOver(int xres, int yres, string gameOver)
+
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -423,7 +430,56 @@ void showGameOver(int xres, int yres, GLuint overTexture)
 		glTexCoord2f(1.0f, 1.0f);
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+
+	r.left = xcent;
+	r.bot  = ycent + 80;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, gameOver.c_str());
 }
 
+/*
+void over(){
+	Rect r;
+	ggprint16(&r, 50, 0xffffffff, "Game Over ");
+
+}
+extern class Show_Over show_over;
+
+Show_Over::~Show_Over() { delete [] data; }
+
+Show_Over::Show_Over(const char *fname) {
+	if (fname[0] == '\0')
+		return;
+	char name[40];
+	strcpy(name, fname);
+	int slen = strlen(name);
+	name[slen-4] = '\0';
+	char ppmname[80];
+	sprintf(ts, "convert %s %s" fname, ppmname);
+	system(ts);
+	FILE *fpi = fopen(ppmname, "r");
+	if (fpi) { 
+		char line[200];
+		fgets(line, 200, fpi);
+		fgets(line, 200, fpi);
+
+		while (line[0] == '#' || strlen(line) < 2)
+			fgets(line, 200, fpi);
+		sscanf(line, "%i %i", &width, &height);
+		fgets(line, 200, fpi);
+
+		int n = width * height * 3;
+		data = new unsigned char[n];
+		for (int i=0; i<n; i++)
+			data[i] = fgetc(fpi);
+		fclose(fpi);
+	}else {
+		printf("ERROR opening image: %s\n" ppmname);
+		exit(0);
+	}
+	unlink(ppmname);
+}
+*/
