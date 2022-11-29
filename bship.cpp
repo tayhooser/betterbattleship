@@ -927,17 +927,7 @@ void mouse_click(int ibutton, int action, int x, int y)
                         // if user clicked in left grid
                         if (ibutton == 1) {
                             moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, i, j);
-                            /*if (nships < MAXSHIPS - 1) {
-									grid1[i][j].shipno = nships;
-									ship[nships].size = 1;
-									ship[nships].updateType();
-									//printf("ship %d just placed! nships = %d\n", grid1[i][j].shipno, nships);
-									printf("ship type %d just placed!", t);
-									logtext = "Ship " + to_string(grid1[i][j].shipno) + " placed";
-									//logQueue.enqueue(logtext);
-									logQueue.enqueue("New ship placed");
-                                    moveMode = 0;
-								}*/
+                            logQueue.enqueue("Ship Moved");
                         moveMode = 0;
                         }
                         m=1;
