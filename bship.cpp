@@ -41,7 +41,8 @@ void render();
 void get_grid_center(const int g, const int i, const int j, int cent[2]);
 int xres=1200;
 int yres=800;
-
+extern void ChangeShipStatus(Grid grid1[][16], Grid grid2[][16], 
+					int GRIDDIM, int i, int j, int cent[], int qsize);
 
 
 // ----------- GRID STRUCTURE ------------------------------------------
@@ -218,6 +219,9 @@ int nbombs = 0;
 int ntbombs = 0;
 int prev_ntbombs = 100;
 
+int feature_mode = 0;
+bool dee_feature = false;
+
 
 
 // ----------- GAMEMODE INFO ------------------------------------------
@@ -226,32 +230,27 @@ int prev_ntbombs = 100;
 //1 place ships on left grid
 //2 search for ships on right grid
 //3 game over
-enum {
-	MODE_READY=0,
-	MODE_PLACE_SHIPS,
-	MODE_FIND_SHIPS,
-	MODE_GAMEOVER
-};
+//enum {
+//	MODE_READY=0,
+//	MODE_PLACE_SHIPS,
+//	MODE_FIND_SHIPS,
+//	MODE_GAMEOVER
+//};
 
 string gameOver = "You lose!";
 
 int cturns = 0;
-static int gamemode=0;
-
+//static int gamemode=0;
 bool credits = false; //off on startup, toggleable
 bool intro = true; // plays on startup, once
 unsigned int pause_screen = 0; //off on startup, toggleable
 int help = 0; // off on startup, toggleable
-unsigned int game_over = 0; //off on startup, toggleable
-
 int jason_feature = 1; // always on, log panel
+unsigned int game_over = 0; //off on startup, toggleable
 bool taylorFeature = false; //off on startup, turns on during ship place
 bool cecilioFeature = false;
 bool moveMode = false;
 bool selectMode = false;
-
-int feature_mode = 0; //danny's feature mode
-bool dee_feature = false; //delaneys feature mode
 
 
 // ----------- XWINDOWS ------------------------------------------
@@ -601,11 +600,6 @@ void reset_grids(void)
     cturns = 0;
 	gamemode = MODE_READY;
 	taylorFeature = false;
-	feature_mode = false;
-	cecilioFeature = false;
-	moveMode = false;
-	selectMode = false;
-	cturns = 0;
 	nships = 0;
 	nbombs = 0;
 	ntbombs = 0;
@@ -662,13 +656,13 @@ void check_keys(XEvent *e)
 	}
 	switch(key) {
 		//if (k1 == GLFW_KEY_F2) {
-		case XK_Escape: //quit game
+		case XK_Escape:
 			done=1;
 			break;
-		case XK_q: //quit game
+		case XK_q:
 			done=1;
 			break;
-		case XK_F2: //DEBUG ONLY: change gamemode
+		case XK_F2:
 			gamemode++;
 			taylorFeature = false;
 			feature_mode = 0;
@@ -697,8 +691,7 @@ void check_keys(XEvent *e)
 			//show_cecilio();
             //--gamemode;
             //selectMode = !selectMode;
-			//if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
-			if (cturns == 0) {
+			if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
                 cecilioFeature = 1;
                 cturns++;
             }
@@ -715,18 +708,18 @@ void check_keys(XEvent *e)
 		//	show_jason(); <--- prints jason in terminal
 			jason_feature = toggle(jason_feature);
 			break;
-		case XK_c: //shows credits
+		case XK_c:
 			credits = !credits;
 			if ( jason_feature )
 				jason_feature = toggle(jason_feature);
 			break;
-		case XK_p: //show pause screen
+		case XK_p:
 			pause_screen = manage_state(pause_screen);
 			break;
-		case XK_F1: // show help screen
+		case XK_F1:
 			help = toggle(help);
 			break;
-		case XK_space: //exit intro
+		case XK_space:
 			intro = !intro;
 			break;
 		case XK_o:
@@ -734,8 +727,6 @@ void check_keys(XEvent *e)
 			break;
 		case XK_m:
 			missileType ^=1;
-			feature_mode = 1;
-			cecilioFeature = false;
 			break;
 		case XK_f:
 			feature_mode = manage_state(feature_mode);
@@ -824,20 +815,12 @@ void mouse_click(int ibutton, int action, int x, int y)
 				if (i==7) {
 					// user clicked missile
 					missileType ^=1;
-					feature_mode = 1;
-					cecilioFeature = false;
 				}
 				if (i==8) {
-					//show_cecilio();
-					//--gamemode;
-					//selectMode = !selectMode;
-					//if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
-					if (cturns == 0) {
-						feature_mode = 0;
+					if (cturns == 0 && gamemode == MODE_PLACE_SHIPS) {
 						cecilioFeature = 1;
 						cturns++;
 					}
-					//moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships);
 				}
 			}
 		}
@@ -887,6 +870,7 @@ void mouse_click(int ibutton, int action, int x, int y)
 									logtext = "Ship " + to_string(grid1[i][j].shipno) + " placed";
 									//logQueue.enqueue(logtext);
 									logQueue.enqueue("New ship placed");
+									
 								}
 							}
 						}
@@ -985,127 +969,11 @@ void mouse_click(int ibutton, int action, int x, int y)
 								logQueue.enqueue("You missed");
 							}
 							if (feature_mode != 0) {
-								if (missileType != 0 && ntbombs != prev_ntbombs){
+								if (missileType != 0 && ntbombs != 
+														prev_ntbombs){
 									prev_ntbombs = ntbombs;
-									int radar = 0;
-									if (grid1[i][j].status) {
-										int s = grid1[i][j].shipno;
-										//int s1 = grid1[i+1][j].shipno;
-										//int s2 = grid1[i-1][j].shipno;
-										//int s3 = grid1[i][j+1].shipno;
-										//int s4 = grid1[i][j-1].shipno;
-										grid2[i][j].status = 2;
-										//grid2[i+1][j].status = 2;
-										//grid2[i-1][j].status = 2;
-										//grid2[i][j+1].status = 2;
-										//grid2[i][j-1].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												radar++;
-												nshipssunk++;
-												nbombs += 5;
-												if (nshipssunk >= nships) {
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												}else if (ship[planetID].status == SHIP_SUNK){
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												} 
-											}
-										}
-									}
-									if (grid1[i + 1][j].status == 1) {
-										get_grid_center(2,(i + 1),j,cent);
-										int s = grid1[i + 1][j].shipno;
-										grid2[i+1][j].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												}else if (ship[planetID].status == SHIP_SUNK){
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												} 
-											}
-										}
-									}
-									if (grid1[i - 1][j].status == 1) {
-										get_grid_center(2,(i - 1),j,cent);
-										int s = grid1[i-1][j].shipno;
-										grid2[i-1][j].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												}else if (ship[planetID].status == SHIP_SUNK){
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												} 
-											}
-										}
-									}
-									if (grid1[i][j + 1].status == 1) {
-										get_grid_center(2,i,(j + 1),cent);
-										int s = grid1[i][j + 1].shipno;
-										grid2[i][j+1].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											//is this ship sunk?
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												}else if (ship[planetID].status == SHIP_SUNK){
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												} 
-											}
-										}
-									}
-									if (grid1[i][j - 1].status == 1) {
-										get_grid_center(2,i,(j - 1),cent);
-										int s = grid1[i][j-1].shipno;
-										grid2[i][j-1].status = 2;
-										make_particle(cent[0], cent[1], qsize);
-										{
-											if (check_for_sink(s)) {
-												if (!(radar >= 1)){
-													nshipssunk++;
-													nbombs += 5;
-												}
-												radar++;
-												if (nshipssunk >= nships) {
-													gamemode = MODE_GAMEOVER;
-												}else if (ship[planetID].status == SHIP_SUNK){
-													gameOver = "You win!";
-													gamemode = MODE_GAMEOVER;
-												} 
-											}
-										}
-									}
+									ChangeShipStatus(grid1, grid2, 
+											GRIDDIM, i, j, cent, qsize);
 								}
 							}
 							if (nbombs <= 0 && ntbombs <=0) {

@@ -3,8 +3,16 @@
 // Date: September 13, 2022
 #include <stdio.h>
 #include <GL/glx.h>
+#include <algorithm>
 #include "fonts.h"
-
+#include "thooser.h"
+#include "dsimpson.h"
+#include "jrodriguez4.h"
+#define MAXSHIPS 10 + 1
+extern void get_grid_center(const int g, const int i, const int j, int cent[2]);
+extern int check_for_sink(int s);
+extern class Ship ship[MAXSHIPS];
+extern Queue logQueue;
 const int MAX_PARTICLES = 1000;
 int x_value = 0;
 int y_value = 0;
@@ -87,7 +95,8 @@ void PauseScreen(int xres, int yres)
 	ggprint16(&r, 50, 0xffffffff, "--Pause--");
 	ggprint16(&r, 50, 0xffffffff, "Press(F1) For Help");
 }
-int LaunchMissile(int x, int y, int cent[], int qsize, int missileType)//int grid2[16][16])
+int LaunchMissile(int x, int y, int cent[], int qsize, int missileType)
+                                                    //int grid2[16][16])
 {
 	if (x >= cent[0]-qsize &&
 		x <= cent[0]+qsize &&
@@ -129,14 +138,6 @@ void FeatureBorder(int xres, int yres)
 		glVertex2i(wid, wid);
 	glEnd();
 	glDisable(GL_BLEND);
-	
-	Rect r;
-	r.left = 40;
-	r.bot  = yres - 50;
-	r.center = 0;
-	
-	ggprint16(&r, 40, 0xffffff00, "Danny's Feature:");
-	ggprint16(&r, 40, 0xffffff00, "Different missile types + animations");
 	
 	
 	
@@ -215,6 +216,144 @@ void explosion_physics()
            particles[i]= particles[n - 1];
            --n;
         }
+	}
+}
+void ChangeShipStatus(Grid grid1[][16], Grid grid2[][16], int GRIDDIM, int i, int j, int cent[], int qsize)
+{
+	int radar = 0;
+	if (grid1[i][j].status) {
+		int s = grid1[i][j].shipno;
+		//int s1 = grid1[i+1][j].shipno;
+		//int s2 = grid1[i-1][j].shipno;
+		//int s3 = grid1[i][j+1].shipno;
+		//int s4 = grid1[i][j-1].shipno;
+		grid2[i][j].status = 2;
+		logQueue.enqueue("Ship hit");
+		//grid2[i+1][j].status = 2;
+		//grid2[i-1][j].status = 2;
+		//grid2[i][j+1].status = 2;
+		//grid2[i][j-1].status = 2;
+		make_particle(cent[0], cent[1], qsize);
+		{
+			//is this ship sunk?
+			if (check_for_sink(s)) {
+				radar++;
+				nshipssunk++;
+				nbombs += 5;
+				if (nshipssunk >= nships) {
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				} else if (ship[planetID].status == SHIP_SUNK){
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				}
+			}
+		}
+	} else {
+		logQueue.enqueue("You missed");
+	}
+	if (grid1[i + 1][j].status == 1) {
+		get_grid_center(2,(i + 1),j,cent);
+		int s = grid1[i + 1][j].shipno;
+		grid2[i+1][j].status = 2;
+		logQueue.enqueue("Ship hit");
+		make_particle(cent[0], cent[1], qsize);
+		{
+			//is this ship sunk?
+			if (check_for_sink(s)) {
+				if (!(radar >= 1)){
+					nshipssunk++;
+					nbombs += 5;
+				}
+				radar++;
+				if (nshipssunk >= nships) {
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				} else if (ship[planetID].status == SHIP_SUNK){
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				}
+			}
+		}
+	} else {
+		logQueue.enqueue("You missed");
+	}
+	if (grid1[i - 1][j].status == 1) {
+		get_grid_center(2,(i - 1),j,cent);
+		int s = grid1[i-1][j].shipno;
+		grid2[i-1][j].status = 2;
+		logQueue.enqueue("Ship hit");
+		make_particle(cent[0], cent[1], qsize);
+		{
+			//is this ship sunk?
+			if (check_for_sink(s)) {
+				if (!(radar >= 1)){
+					nshipssunk++;
+					nbombs += 5;
+				}
+				radar++;
+				if (nshipssunk >= nships) {
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				} else if (ship[planetID].status == SHIP_SUNK){
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				}
+			}
+		}
+	} else {
+		logQueue.enqueue("You missed");
+	}
+	if (grid1[i][j + 1].status == 1) {
+		get_grid_center(2,i,(j + 1),cent);
+		int s = grid1[i][j + 1].shipno;
+		grid2[i][j+1].status = 2;
+		logQueue.enqueue("Ship hit");
+		make_particle(cent[0], cent[1], qsize);
+		{
+			//is this ship sunk?
+			if (check_for_sink(s)) {
+				if (!(radar >= 1)){
+					nshipssunk++;
+					nbombs += 5;
+				}
+				radar++;
+				if (nshipssunk >= nships) {
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				} else if (ship[planetID].status == SHIP_SUNK){
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				}
+			}
+		}
+	} else {
+		logQueue.enqueue("You missed");
+	}
+	if (grid1[i][j - 1].status == 1) {
+		get_grid_center(2,i,(j - 1),cent);
+		int s = grid1[i][j-1].shipno;
+		grid2[i][j-1].status = 2;
+		logQueue.enqueue("Ship hit");
+		make_particle(cent[0], cent[1], qsize);
+		{
+			if (check_for_sink(s)) {
+				if (!(radar >= 1)){
+					nshipssunk++;
+					nbombs += 5;
+				}
+				radar++;
+				if (nshipssunk >= nships) {
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				} else if (ship[planetID].status == SHIP_SUNK){
+					gameOver = "You win!";
+					gamemode = MODE_GAMEOVER;
+				}
+			}
+		}
+	} else {
+		logQueue.enqueue("You missed");
 	}
 }
 
