@@ -156,9 +156,6 @@ void cecilio_feature(int xres, int yres)
 //Makes the intro screen
 void showIntro(int xres, int yres, GLuint capitalTexture)
 {
-    int imgdim = 64;
-    int imgx;
-    int imgy;
 
 	Rect r;
 	int xcent = xres / 2;
@@ -178,8 +175,6 @@ void showIntro(int xres, int yres, GLuint capitalTexture)
 	ggprint16(&r, 50, 0xffffffff, "Press: 'I' to continue");
 	
 	//Display img
-	imgx = xcent;
-        imgy = ycent + 150 + 16;
 
         glBindTexture(GL_TEXTURE_2D, capitalTexture);
         glBegin(GL_QUADS);

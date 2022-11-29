@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+using namespace std;
 #include <unistd.h>
 #include <cstring>
 #include <GL/glx.h>
@@ -185,11 +187,7 @@ void showTeir(int xres, int yres, GLuint xTexture)
 {
 //	glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
 //	glClear(GL_COLOR_BUFFER_BIT);
-	int cent[2];
-	int xcent = xres / 2;		
-	int ycent = yres / 2;	
-	int width = 10;
-	int height = 10;
+	int cent[2];	
 
 	//tester init matrices 
 	//not sure if this will do anything I want it to 
@@ -305,7 +303,7 @@ void deeCred(int xres, int yres)
 	ggprint16(&r, 40, 0xffffff00, "Grid System Updates");
 }
 
-void showGameOver(int xres, int yres, GLuint overTexture)
+void showGameOver(int xres, int yres, GLuint overTexture, string gameOver)
 {
 	int xcent = xres / 2;
 	int ycent = yres / 2;
@@ -328,6 +326,12 @@ void showGameOver(int xres, int yres, GLuint overTexture)
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	Rect r;
+	r.left = xcent;
+	r.bot  = 180;
+	r.center = 50;
+	ggprint16(&r, 50, 0xffffffff, gameOver.c_str());
 
 }
 

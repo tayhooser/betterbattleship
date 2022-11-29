@@ -69,8 +69,6 @@ void PauseScreen(int xres, int yres)
 	Rect r;
 	int xcent = xres / 2;
 	int ycent = yres / 2;
-	int w = 350;
-	int h = 220;
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glColor4f(0, 0, 0, 0.4f);

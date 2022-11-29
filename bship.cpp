@@ -1,5 +1,5 @@
 //Edited by: Taylor Hooser, Jason Rodriguez, Danny Simpson, Cecilio Navarro, Delaney Welch
-//date: Spring 2022
+//date: Fall 2022
 //purpose: project final for CS 3350
 
 //cs335 Spring 2014 - 2018
@@ -1589,7 +1589,7 @@ void render(void)
 	
 	// game over screen
 	if (game_over || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, overTexture);
+		showGameOver(xres, yres, overTexture, gameOver);
 	}
 
 	// draw reset button
