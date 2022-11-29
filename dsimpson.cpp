@@ -1,6 +1,6 @@
 // My source code file
 // Created by: Danny Simpson
-// Date: September 13, 2022
+// Date: Fall 2022
 #include <stdio.h>
 #include <GL/glx.h>
 #include "fonts.h"
