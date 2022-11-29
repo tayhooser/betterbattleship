@@ -1,6 +1,7 @@
 // My source code file
 // Created by: Danny Simpson
 // Date: Fall 2022
+// Purpose: Final Project for Software Engineering
 #include <stdio.h>
 #include <GL/glx.h>
 #include "fonts.h"
