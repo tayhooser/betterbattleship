@@ -1,4 +1,9 @@
+//Author: Cecilio Navarro
+//Date: Fall 2022
+//Purpose: Include files for project
 #include <stdio.h>
+
+//Function prototypes
 
 extern void coord(int i, int j);
 extern int selectShips(Grid grid[][16], Ship ship[], int GRIDDIM, int MAXSHIPS, int nships, int shipToMove);
