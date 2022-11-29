@@ -1,6 +1,6 @@
 //delaney welch 
 //source code for battle ship group project
-//date 9/13/22
+//Fall 22
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,13 +31,15 @@ int GridMax = NGRDS;
 int BoardDim = 400;
 int qsz;
 int dun=0;
-	
+
+//toggle switch for old lab  
 unsigned int manage_over_state(unsigned int o)
 {
 	o = o ^ 1;
 	return o;
 }	
-	
+
+//print out for old lab 
 int show_dwelch()
 {
     printf("delaney\n");
@@ -45,6 +47,8 @@ int show_dwelch()
     return 0;
 
 }
+
+//sets feature border with my name and notations
 void FeatureBox(int xres, int yres)
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -70,6 +74,9 @@ void FeatureBox(int xres, int yres)
 	glEnd();
 	glDisable(GL_BLEND);
 }	
+
+//pulled from bship.cpp edited to work with 
+//new tier system 
 void ResetGrids(void)
 {
 	//restart the game...
@@ -85,6 +92,8 @@ void ResetGrids(void)
 	}
 }
 void get_grid_center(const int t, const int i, const int j, int xres, int yres, int cent[2]);
+
+//
 void check_dims(const int t, const int x, const int y, const int i, const int j, int xres, int yres, int cent[2])
 {
         for(int i=0; i<GridDim; i++) {
@@ -132,6 +141,8 @@ void check_dims(const int t, const int x, const int y, const int i, const int j,
         }
 }
 
+//adjusts grids centers for each teir 
+//inspired from bship.cpp version
 void get_grid_center(const int t, const int i, const int j, int xres, int yres, int cent[2])
 {
 	//This function can be optimized, and made more generic.
@@ -181,6 +192,8 @@ void get_grid_center(const int t, const int i, const int j, int xres, int yres, 
 }
 
 void single(int, float, float);
+
+//loops each grid for setup
 void showTeir(int xres, int yres, GLuint xTexture)
 {
 //	glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
@@ -252,7 +265,8 @@ void showTeir(int xres, int yres, GLuint xTexture)
 	}
 	//glDisable(GL_BLEND);
 }
-//credits and creditibility
+
+//sets each box within the teirs 
 void single(int h,float x, float y)
 {
 	if (h ==1)
@@ -272,6 +286,8 @@ void single(int h,float x, float y)
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+//border from old lab 
 void deeCred(int xres, int yres)
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -305,6 +321,7 @@ void deeCred(int xres, int yres)
 	ggprint16(&r, 40, 0xffffff00, "Grid System Updates");
 }
 
+//game over screen 
 void showGameOver(int xres, int yres, GLuint overTexture)
 {
 	int xcent = xres / 2;
@@ -330,4 +347,3 @@ void showGameOver(int xres, int yres, GLuint overTexture)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 }
-
