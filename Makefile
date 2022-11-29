@@ -1,5 +1,5 @@
 CFLAGS = -pthread
-LFLAGS = -lrt -lX11 -lGLU -lGL -lm #-lXrandr
+LFLAGS = -Wall -lrt -lX11 -lGLU -lGL -lm #-lXrandr
 INCLUDE = cnavarro.cpp dsimpson.cpp dwelch.cpp jrodriguez4.cpp thooser.cpp
 
 all: bship

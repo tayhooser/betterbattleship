@@ -1,5 +1,5 @@
 //Edited by: Taylor Hooser, Jason Rodriguez, Danny Simpson, Cecilio Navarro, Delaney Welch
-//date: Spring 2022
+//date: Fall 2022
 //purpose: project final for CS 3350
 
 //cs335 Spring 2014 - 2018
@@ -927,17 +927,7 @@ void mouse_click(int ibutton, int action, int x, int y)
                         // if user clicked in left grid
                         if (ibutton == 1) {
                             moveShips(grid1, ship, GRIDDIM, MAXSHIPS, nships, i, j);
-                            /*if (nships < MAXSHIPS - 1) {
-									grid1[i][j].shipno = nships;
-									ship[nships].size = 1;
-									ship[nships].updateType();
-									//printf("ship %d just placed! nships = %d\n", grid1[i][j].shipno, nships);
-									printf("ship type %d just placed!", t);
-									logtext = "Ship " + to_string(grid1[i][j].shipno) + " placed";
-									//logQueue.enqueue(logtext);
-									logQueue.enqueue("New ship placed");
-                                    moveMode = 0;
-								}*/
+                            logQueue.enqueue("Ship Moved");
                         moveMode = 0;
                         }
                         m=1;
@@ -1599,7 +1589,7 @@ void render(void)
 	
 	// game over screen
 	if (game_over || (gamemode == MODE_GAMEOVER)) {
-		showGameOver(xres, yres, overTexture);
+		showGameOver(xres, yres, overTexture, gameOver);
 	}
 
 	// draw reset button

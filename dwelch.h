@@ -3,7 +3,7 @@
 
 //extern void over();
 extern unsigned int manage_over_state(unsigned int o);
-extern void showGameOver(int xres, int yres, GLuint overTexture);
+extern void showGameOver(int xres, int yres, GLuint overTexture, string gameOver);
 extern void showTeir(int xres, int yres, GLuint xTexture);
 extern void FeatureBox(int xres, int yres);
 

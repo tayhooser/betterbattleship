@@ -91,6 +91,7 @@ void PauseScreen(int xres, int yres)
     r.center = 50;
     ggprint16(&r, 50, 0xffffffff, "--Pause--");
     ggprint16(&r, 50, 0xffffffff, "Press(F1) For Help");
+
 }
 //prototype for the missile for mouse_click
 /*int LaunchMissile(int x, int y, int cent[], int qsize, int missileType)

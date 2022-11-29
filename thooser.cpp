@@ -1,5 +1,5 @@
 //author: Taylor Hooser
-//date: Spring 2022
+//date: Fall 2022
 //purpose: personal file for project
 
 
@@ -236,9 +236,6 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	int ycent = yres / 2;
 	int w = 380;
 	int h = 300;
-	int imgdim = 64;
-	int imgx;
-	int imgy;
 	
 	//dim background
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -277,6 +274,11 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 
 	// decided to not have portraits
 	/*
+	
+	int imgdim = 64;
+	int imgx;
+	int imgy;
+	
 	//display taylor's portrait
 	imgx = xcent - 100;
 	imgy = ycent + 130 + 16;
