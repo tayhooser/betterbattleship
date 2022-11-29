@@ -1,4 +1,4 @@
-//my source code file
+// My source code file
 // Created by: Danny Simpson
 // Date: September 13, 2022
 #include <stdio.h>
@@ -40,6 +40,7 @@ public:
 Box particles[MAX_PARTICLES];
 int n = 0;
 void ExplosionAnimation(int x, int y, int width, int m);
+//make particles for animation
 void make_particle(int x, int y, int wid)
 {
     for (int i = 0; i < 20; i++) {
@@ -54,16 +55,19 @@ void make_particle(int x, int y, int wid)
     }
 //  ExplosionAnimation(x, y, width, n);
 }
+// To manage state
 unsigned int manage_state(unsigned int s)
 {
     s=s^1;
     return s;
 }
+// Function to print my name to the terminal
 int show_danny()
 {
     printf("Danny Simpson \n");
     return 0;
 }
+//Function pause the game
 void PauseScreen(int xres, int yres)
 {
     Rect r;
@@ -87,26 +91,27 @@ void PauseScreen(int xres, int yres)
     ggprint16(&r, 50, 0xffffffff, "--Pause--");
     ggprint16(&r, 50, 0xffffffff, "Press(F1) For Help");
 }
-// ----------- GRID STRUCTURE ------------------------------------------
-int LaunchMissile(int x, int y, int cent[], int qsize, int missileType)
-                                                    //int grid2[16][16])
-{
-    if (x >= cent[0]-qsize &&
-        x <= cent[0]+qsize &&
-        y >= cent[1]-qsize &&
-        y <= cent[1]+qsize && 
-        missileType == 0) {
-        return 0;
-    }
-    if (x >= cent[0]-qsize &&
-        x <= cent[0]+qsize &&
-        y >= cent[1]-qsize &&
-        y <= cent[1]+qsize && 
-        missileType == 1) {
-        return 1;
-    }
-    return 0;
-}
+//prototype for the missile for mouse_click
+/*int LaunchMissile(int x, int y, int cent[], int qsize, int missileType)
+*                                                    //int grid2[16][16])
+*{
+*    if (x >= cent[0]-qsize &&
+*        x <= cent[0]+qsize &&
+*        y >= cent[1]-qsize &&
+*        y <= cent[1]+qsize && 
+*        missileType == 0) {
+*        return 0;
+*    }
+*    if (x >= cent[0]-qsize &&
+*        x <= cent[0]+qsize &&
+*        y >= cent[1]-qsize &&
+*        y <= cent[1]+qsize && 
+*        missileType == 1) {
+*        return 1;
+*    }
+*    return 0;
+*}
+*/
 void FeatureBorder(int xres, int yres)
 {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -139,6 +144,7 @@ void FeatureBorder(int xres, int yres)
 	
 	
 }
+//Physics for the particle animation
 void explosion_physics()
 { 
     int k = 0;
@@ -214,7 +220,7 @@ void explosion_physics()
         }
     }
 }
-
+//Function to render the particles
 void ExplosionAnimation(int xx, int yy, int wid, int m)
 {
     x_value = xx;
