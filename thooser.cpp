@@ -228,7 +228,6 @@ void taylorFeatureOverlay(int xres, int yres)
 }
 
 // function from lab 7
-// credits overlay with 128x128 pixel images
 void showCredits(int xres, int yres, GLuint portraitTexture)
 {
 	Rect r;
@@ -263,7 +262,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	ggprint16(&r, 80, 0xffffffff, "~~~ CREDITS ~~~");
 	
 	//display names
-	r.left = xcent;
+	r.left = xcent + 80;
 	r.bot  = ycent + 130;
 	ggprint16(&r, 80, 0xffffffff, "Taylor Hooser");
 	ggprint16(&r, 80, 0xffffffff, "Jason Rodriguez");
@@ -271,9 +270,7 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 	ggprint16(&r, 80, 0xffffffff, "Cecilio Navarro");
 	ggprint16(&r, 80, 0xffffffff, "Delaney Welch");
 	
-
-	// decided to not have portraits
-	/*
+	//placeholder image used
 	
 	int imgdim = 64;
 	int imgx;
@@ -363,5 +360,5 @@ void showCredits(int xres, int yres, GLuint portraitTexture)
 		glVertex2f(imgx+imgdim, imgy-imgdim);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
-	*/
+
 }
